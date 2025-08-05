@@ -13,13 +13,25 @@ const UpdatePassword = () => {
 
   useEffect(() => {
     const restoreSession = async () => {
-      const { error } = await supabase.auth.exchangeCodeForSession();
-      if (error) {
-        setStatus('Session not found or expired. Please use the reset link again.');
-        setLoading(false);
+      const hash = window.location.hash.substr(1); // remove "#"
+      const params = new URLSearchParams(hash);
+      const access_token = params.get('access_token');
+      const refresh_token = params.get('refresh_token');
+
+      if (access_token && refresh_token) {
+        const { data, error } = await supabase.auth.setSession({
+          access_token,
+          refresh_token,
+        });
+
+        if (error) {
+          setStatus('Session could not be restored. Please try the link again.');
+        }
       } else {
-        setLoading(false);
+        setStatus('Invalid reset link. Please request a new one.');
       }
+
+      setLoading(false);
     };
 
     restoreSession();
@@ -37,11 +49,12 @@ const UpdatePassword = () => {
     }
 
     const { error } = await supabase.auth.updateUser({ password: newPassword });
+
     if (error) {
       setStatus('❌ Failed to update password. Please try again.');
     } else {
       setStatus('✅ Password updated successfully. Redirecting to login...');
-      setTimeout(() => navigate('/'), 2000);
+      setTimeout(() => navigate('/login'), 2000);
     }
   };
 
