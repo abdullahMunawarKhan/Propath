@@ -1,105 +1,53 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import { supabase } from './utils/supabase';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
+import { useNavigate } from 'react-router-dom';
 
 const UpdatePassword = () => {
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [status, setStatus] = useState('');
-  const [loading, setLoading] = useState(true);
-  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
+  const [newPassword, setNewPassword] = useState('');
+  const [message, setMessage] = useState('');
 
   useEffect(() => {
-    const restoreSession = async () => {
-      const { error } = await supabase.auth.exchangeCodeForSession();
-      if (error) {
-        setStatus('❌ Session could not be restored. Please try the reset link again.');
-      }
-      setLoading(false);
-    };
+    const hash = window.location.hash.substring(1);
+    const params = new URLSearchParams(hash);
+    const access_token = params.get('access_token');
+    const refresh_token = params.get('refresh_token');
 
-    restoreSession();
+    if (access_token && refresh_token) {
+      supabase.auth.setSession({ access_token, refresh_token });
+    } else {
+      setMessage('Invalid or missing token in URL.');
+    }
   }, []);
 
-  const handleUpdate = async () => {
-    if (!newPassword || !confirmPassword) {
-      setStatus('⚠️ Please fill in both password fields.');
-      return;
-    }
-
-    if (newPassword !== confirmPassword) {
-      setStatus('❌ Passwords do not match.');
-      return;
-    }
-
+  const handleUpdatePassword = async () => {
     const { error } = await supabase.auth.updateUser({ password: newPassword });
-
     if (error) {
-      setStatus('❌ Failed to update password. ' + error.message);
+      setMessage('Failed to update password: ' + error.message);
     } else {
-      setStatus('✅ Password updated successfully. Redirecting to login...');
-      setTimeout(() => navigate('/login'), 2000);
+      setMessage('Password updated successfully!');
+      setTimeout(() => navigate('/'), 2000); // redirect after success
     }
   };
 
   return (
-    <div className="min-h-screen flex justify-center items-center bg-blue-100 px-4 py-8">
-      <div className="w-full max-w-md bg-white p-6 sm:p-8 rounded-xl shadow-lg">
-        <h2 className="text-xl sm:text-2xl font-bold mb-4 text-blue-700 text-center">
-          🔐 Set New Password
-        </h2>
-
-        {loading ? (
-          <p className="text-center text-gray-500">Restoring session...</p>
-        ) : (
-          <>
-            {/* New Password Field */}
-            <div className="relative mb-4">
-              <input
-                type={showPassword ? 'text' : 'password'}
-                placeholder="Enter new password"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-md pr-10 focus:outline-none focus:ring-2 focus:ring-blue-400"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword((prev) => !prev)}
-                className="absolute top-3 right-3 text-gray-600"
-              >
-                {showPassword ? <EyeSlashIcon className="w-5 h-5" /> : <EyeIcon className="w-5 h-5" />}
-              </button>
-            </div>
-
-            {/* Confirm Password Field */}
-            <div className="relative mb-4">
-              <input
-                type={showPassword ? 'text' : 'password'}
-                placeholder="Confirm new password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-md pr-10 focus:outline-none focus:ring-2 focus:ring-blue-400"
-              />
-            </div>
-
-            <button
-              onClick={handleUpdate}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-md font-medium transition disabled:opacity-50"
-              disabled={!newPassword || !confirmPassword}
-            >
-              Update Password
-            </button>
-
-            {status && (
-              <p className="mt-4 text-center text-sm text-gray-700">
-                {status}
-              </p>
-            )}
-          </>
-        )}
-      </div>
+    <div className="p-6 max-w-md mx-auto">
+      <h2 className="text-xl font-bold mb-4">Reset Your Password</h2>
+      <input
+        type="password"
+        placeholder="New password"
+        value={newPassword}
+        onChange={(e) => setNewPassword(e.target.value)}
+        className="border p-2 w-full mb-4"
+      />
+      <button
+        onClick={handleUpdatePassword}
+        className="bg-blue-600 text-white px-4 py-2 rounded"
+      >
+        Update Password
+      </button>
+      {message && <p className="mt-4 text-sm text-red-600">{message}</p>}
     </div>
   );
 };
