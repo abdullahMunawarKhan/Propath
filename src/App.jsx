@@ -11,7 +11,7 @@ import Roadmaps from './Roadmaps';
 import Result from './Result';
 import Exams from './Exams';
 import UpdatePassword from './UpdatePassword';
-import Welcome from './Welcome'; // ✅ Import Welcome page
+import Welcome from './Welcome';
 
 function App() {
   const [user, setUser] = useState(null);
