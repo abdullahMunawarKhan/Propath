@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import questions from './questions';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from './supabaseClient';
+import { supabase } from './utils/supabase';
 
 const Quiz = ({ user }) => {
   const [filteredQuestions, setFilteredQuestions] = useState([]);
