@@ -46,9 +46,11 @@ const UpdatePassword = () => {
   };
 
   return (
-    <div className="min-h-screen flex justify-center items-center bg-blue-100 p-6">
-      <div className="bg-white p-6 rounded shadow-lg w-full max-w-md">
-        <h2 className="text-xl font-bold mb-4 text-blue-700 text-center">Set New Password</h2>
+    <div className="min-h-screen flex justify-center items-center bg-blue-100 px-4 py-8">
+      <div className="w-full max-w-md bg-white p-6 sm:p-8 rounded-xl shadow-lg">
+        <h2 className="text-xl sm:text-2xl font-bold mb-4 text-blue-700 text-center">
+          🔐 Set New Password
+        </h2>
 
         {loading ? (
           <p className="text-center text-gray-500">Restoring session...</p>
@@ -61,12 +63,12 @@ const UpdatePassword = () => {
                 placeholder="Enter new password"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
-                className="w-full p-2 border border-gray-300 rounded pr-10"
+                className="w-full p-3 border border-gray-300 rounded-md pr-10 focus:outline-none focus:ring-2 focus:ring-blue-400"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword((prev) => !prev)}
-                className="absolute top-2 right-3 text-gray-600"
+                className="absolute top-3 right-3 text-gray-600"
               >
                 {showPassword ? <EyeSlashIcon className="w-5 h-5" /> : <EyeIcon className="w-5 h-5" />}
               </button>
@@ -79,19 +81,23 @@ const UpdatePassword = () => {
                 placeholder="Confirm new password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full p-2 border border-gray-300 rounded pr-10"
+                className="w-full p-3 border border-gray-300 rounded-md pr-10 focus:outline-none focus:ring-2 focus:ring-blue-400"
               />
             </div>
 
             <button
               onClick={handleUpdate}
-              className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 disabled:opacity-50"
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-md font-medium transition disabled:opacity-50"
               disabled={!newPassword || !confirmPassword}
             >
               Update Password
             </button>
 
-            {status && <p className="mt-3 text-center text-sm text-gray-700">{status}</p>}
+            {status && (
+              <p className="mt-4 text-center text-sm text-gray-700">
+                {status}
+              </p>
+            )}
           </>
         )}
       </div>

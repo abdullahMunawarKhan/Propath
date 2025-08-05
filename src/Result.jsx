@@ -71,7 +71,7 @@ const Result = () => {
   const renderIqMessage = () => {
     if (iqScore >= 2) {
       return (
-        <div className="bg-yellow-100 text-yellow-800 px-4 py-3 rounded-lg mb-6 text-center text-lg font-semibold shadow-sm border border-yellow-200">
+        <div className="bg-yellow-100 text-yellow-800 px-4 py-3 rounded-lg mb-6 text-center text-base sm:text-lg font-semibold shadow-sm border border-yellow-200">
           🧠 You have a strong IQ. You're well-suited for competitive exams!
         </div>
       );
@@ -80,22 +80,22 @@ const Result = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 px-4 py-12 relative">
-      {/* 🔙 Top-left back button */}
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 px-4 py-6 sm:py-12 relative">
+      {/* Back button */}
       <button
         onClick={() => navigate('/dashboard')}
-        className="absolute top-4 left-4 bg-gray-700 text-white px-4 py-2 rounded hover:bg-gray-800"
+        className="absolute top-4 left-4 bg-gray-700 text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded text-sm sm:text-base hover:bg-gray-800 shadow"
       >
-        ← Back to Dashboard
+        ← Back
       </button>
 
-      <div className="w-full max-w-3xl mx-auto bg-white rounded-2xl shadow-lg p-8">
-        <h1 className="text-3xl font-bold text-blue-700 mb-6 text-center">
+      <div className="w-full max-w-3xl mx-auto bg-white rounded-2xl shadow-lg p-4 sm:p-8 mt-10 sm:mt-16">
+        <h1 className="text-2xl sm:text-3xl font-bold text-blue-700 mb-4 sm:mb-6 text-center">
           🎯 Your Career Domain Feedback
         </h1>
 
         {loading ? (
-          <div className="text-center text-blue-500 animate-pulse text-lg">
+          <div className="text-center text-blue-500 animate-pulse text-base sm:text-lg">
             Loading your feedback...
           </div>
         ) : (
@@ -103,18 +103,18 @@ const Result = () => {
             {renderIqMessage()}
 
             {feedback && Object.keys(feedback).length > 0 ? (
-              <ul className="space-y-5">
+              <ul className="space-y-4 sm:space-y-5">
                 {Object.entries(feedback)
                   .filter(([domain]) => domain !== 'common')
                   .map(([domain, msg]) => (
                     <li
                       key={domain}
-                      className="p-5 rounded-xl shadow-sm border border-blue-100 bg-blue-50 hover:bg-blue-100 transition"
+                      className="p-4 sm:p-5 rounded-xl shadow-sm border border-blue-100 bg-blue-50 hover:bg-blue-100 transition"
                     >
-                      <div className="flex justify-between items-center">
-                        <span className="text-lg font-semibold text-blue-800">{domain}</span>
+                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 sm:gap-0">
+                        <span className="text-base sm:text-lg font-semibold text-blue-800">{domain}</span>
                         <span
-                          className={`text-sm px-3 py-1 rounded-full font-medium ${
+                          className={`text-xs sm:text-sm px-3 py-1 rounded-full font-medium ${
                             msg.includes('Strong')
                               ? 'bg-green-200 text-green-800'
                               : msg.includes('Moderate')
@@ -129,30 +129,32 @@ const Result = () => {
                   ))}
               </ul>
             ) : (
-              <p className="text-center text-gray-500 text-lg">No feedback available yet.</p>
+              <p className="text-center text-gray-500 text-base sm:text-lg">
+                No feedback available yet.
+              </p>
             )}
           </>
         )}
 
-        {/* Action Buttons */}
-        <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
+        {/* Buttons */}
+        <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
           <button
             onClick={handleSaveResult}
-            className="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-6 rounded-xl transition"
+            className="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-6 rounded-xl transition text-sm sm:text-base"
           >
             Save Result
           </button>
 
           <button
             onClick={() => navigate('/dashboard')}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-xl transition"
+            className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-xl transition text-sm sm:text-base"
           >
             ⬅ Back to Dashboard
           </button>
         </div>
 
         {saveStatus && (
-          <div className="text-center mt-4 text-green-700 font-medium">
+          <div className="text-center mt-4 text-green-700 font-medium text-sm sm:text-base">
             {saveStatus}
           </div>
         )}

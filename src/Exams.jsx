@@ -3,7 +3,6 @@ import { supabase } from './utils/supabase';
 import { useNavigate } from 'react-router-dom';
 import examData from './examData';
 
-// ✅ Safely parse resource links
 const parseResources = (resourceString) => {
   if (!resourceString) return [];
   if (Array.isArray(resourceString)) return resourceString;
@@ -66,26 +65,29 @@ const Exams = () => {
   };
 
   return (
-    <div className="min-h-screen p-6 bg-blue-50 relative">
+    <div className="min-h-screen bg-blue-50 px-4 sm:px-6 lg:px-8 py-6 relative">
       {/* Back Button */}
       <button
         onClick={() => navigate('/dashboard')}
         className="absolute top-4 left-4 bg-gray-700 text-white px-4 py-2 rounded hover:bg-gray-800"
       >
-        ← Back to Dashboard
+        ← Back
       </button>
 
-      <h1 className="text-3xl font-bold mb-6 text-center text-blue-900">🎓 Competitive Exams</h1>
+      <h1 className="text-2xl sm:text-3xl font-bold mb-8 text-center text-blue-900">
+        🎓 Competitive Exams
+      </h1>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {/* Cards Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {examData.map((exam) => (
           <div
             key={exam.name}
-            className="bg-white shadow-md p-4 rounded-lg hover:shadow-xl transform hover:scale-105 transition duration-300"
+            className="bg-white shadow-md p-5 rounded-lg hover:shadow-xl transform hover:scale-105 transition duration-300"
           >
-            <h2 className="text-xl font-bold text-blue-800">{exam.name}</h2>
-            <p><strong>Eligibility:</strong> {exam.eligibility}</p>
-            <p><strong>Becomes:</strong> {exam.outcome}</p>
+            <h2 className="text-lg sm:text-xl font-bold text-blue-800">{exam.name}</h2>
+            <p className="text-sm mt-1"><strong>Eligibility:</strong> {exam.eligibility}</p>
+            <p className="text-sm"><strong>Becomes:</strong> {exam.outcome}</p>
 
             <div className="flex justify-between mt-4">
               <button
@@ -107,35 +109,36 @@ const Exams = () => {
       </div>
 
       {/* View Saved Exams */}
-      <div className="mt-8 text-center">
+      <div className="mt-10 text-center">
         <button
-          onClick={() => alert(`Saved Exams : ${savedExams.join(', ') || 'None'}`)}
-          className="mt-4 bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600">
+          onClick={() => alert(`Saved Exams: ${savedExams.join(', ') || 'None'}`)}
+          className="bg-yellow-500 text-white px-5 py-2 rounded hover:bg-yellow-600"
+        >
           📌 View Saved Exams
         </button>
       </div>
 
       {/* Modal */}
       {showModal && selectedExam && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center">
-          <div className="bg-white max-w-md w-full max-h-[80vh] overflow-y-auto rounded-lg p-6 shadow-lg scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100">
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center px-4">
+          <div className="bg-white w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-xl p-6 shadow-xl relative scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100">
             <h2 className="text-xl font-bold mb-4">{selectedExam.name} – Details</h2>
-            <p><strong>Eligibility:</strong> {selectedExam.eligibility}</p>
-            <p><strong>Career Outcome:</strong> {selectedExam.outcome}</p>
-            <p><strong>Pattern:</strong> {selectedExam.pattern}</p>
-            <p><strong>Syllabus:</strong> {selectedExam.syllabus}</p>
+            <p className="text-sm"><strong>Eligibility:</strong> {selectedExam.eligibility}</p>
+            <p className="text-sm"><strong>Career Outcome:</strong> {selectedExam.outcome}</p>
+            <p className="text-sm"><strong>Pattern:</strong> {selectedExam.pattern}</p>
+            <p className="text-sm"><strong>Syllabus:</strong> {selectedExam.syllabus}</p>
 
-            {/* ✅ Clickable Resources */}
+            {/* Clickable Resource Links */}
             <div className="mt-2">
-              <strong>Resources:</strong>
-              <ul className="list-disc ml-6 mt-1">
+              <strong className="text-sm">Resources:</strong>
+              <ul className="list-disc ml-6 mt-1 space-y-1">
                 {parseResources(selectedExam.resources).map((link, index) => (
                   <li key={index}>
                     <a
                       href={link}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-blue-600 underline"
+                      className="text-blue-600 underline text-sm"
                     >
                       Resource {index + 1}
                     </a>
@@ -144,7 +147,7 @@ const Exams = () => {
               </ul>
             </div>
 
-            <div className="mt-4 text-right">
+            <div className="mt-6 text-right">
               <button
                 onClick={closeModal}
                 className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"

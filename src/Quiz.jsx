@@ -1,212 +1,109 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import questions from './questions';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from './utils/supabase';
-import questionsData from './questions';
+import { supabase } from './supabaseClient';
 
 const Quiz = ({ user }) => {
-  const [questions, setQuestions] = useState([]);
-  const [currentIdx, setCurrentIdx] = useState(0);
-  const [selectedOption, setSelectedOption] = useState('');
-  const [timer, setTimer] = useState(60);
+  const [filteredQuestions, setFilteredQuestions] = useState([]);
+  const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState([]);
-  const [commonCorrectCount, setCommonCorrectCount] = useState(0);
+  const [timer, setTimer] = useState(300); // 5 mins
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!user || !user.id) return;
-
-    const fetchDomainsAndQuestions = async () => {
+    const fetchDomains = async () => {
       const { data, error } = await supabase
         .from('students')
         .select('domain')
         .eq('user_id', user.id)
         .single();
 
-      if (error) {
-        console.error('Error fetching domains:', error.message);
-        return;
+      if (data) {
+        const userDomains = data.domain || [];
+        const filtered = questions.filter(q => userDomains.includes(q.domain));
+        setFilteredQuestions(filtered.slice(0, 10)); // max 10 questions
       }
-
-      const selectedDomains = data?.domain || [];
-
-      // FILTER: include if domain === 'common' or in selected domains
-      const filteredQuestions = questionsData.filter(
-        (q) => q.domain === 'common' || selectedDomains.includes(q.domain)
-      );
-
-      // RANDOMIZE ORDER
-      const shuffled = filteredQuestions.sort(() => Math.random() - 0.5);
-      setQuestions(shuffled);
     };
 
-    fetchDomainsAndQuestions();
+    fetchDomains();
   }, [user]);
 
   useEffect(() => {
-    if (timer <= 0) {
-      handleNext(); // auto next
-      return;
-    }
-
-    const interval = setInterval(() => {
-      setTimer((prev) => prev - 1);
-    }, 1000);
-
+    if (timer === 0) handleSubmit();
+    const interval = setInterval(() => setTimer(prev => prev - 1), 1000);
     return () => clearInterval(interval);
   }, [timer]);
 
-  const handleNext = async () => {
-    if (!selectedOption) return;
-
-    const currentQ = questions[currentIdx];
-    const isCorrect = selectedOption === currentQ.answer;
-
-    if (isCorrect && currentQ.domain === 'common') {
-      setCommonCorrectCount((prev) => prev + 1);
-    }
-
-    setAnswers((prev) => [...prev, { domain: currentQ.domain, isCorrect }]);
-    setSelectedOption('');
-
-    if (currentIdx < questions.length - 1) {
-      setCurrentIdx((prev) => prev + 1);
-      setTimer(60);
-    } else {
-      await finishQuiz({ isFinal: true, lastAnswer: { domain: currentQ.domain, isCorrect } });
-    }
+  const handleAnswer = (option) => {
+    setAnswers(prev => [...prev, { question: filteredQuestions[currentQuestion].question, selected: option }]);
+    setCurrentQuestion(prev => prev + 1);
   };
 
-  const finishQuiz = async ({ isFinal = false, lastAnswer = null }) => {
-    const allAnswers = [...answers];
-    let finalCommonCorrect = commonCorrectCount;
+  const handleSubmit = async () => {
+    const domainScores = {};
 
-    if (isFinal && lastAnswer) {
-      allAnswers.push(lastAnswer);
-      if (lastAnswer.isCorrect && lastAnswer.domain === 'common') {
-        finalCommonCorrect += 1;
+    filteredQuestions.forEach((q, i) => {
+      const selected = answers[i]?.selected;
+      if (selected === q.answer) {
+        domainScores[q.domain] = (domainScores[q.domain] || 0) + 1;
       }
-    }
-
-    const domainFeedback = {};
-
-    allAnswers.forEach((ans) => {
-      if (ans.domain === 'common') return;
-
-      if (!domainFeedback[ans.domain]) {
-        domainFeedback[ans.domain] = { correct: 0, total: 0 };
-      }
-      domainFeedback[ans.domain].total += 1;
-      if (ans.isCorrect) domainFeedback[ans.domain].correct += 1;
     });
 
-    const feedback = {};
-    for (const domain in domainFeedback) {
-      const { correct, total } = domainFeedback[domain];
-      const percent = (correct / total) * 100;
-
-      if (percent >= 70) {
-        feedback[domain] = 'Strong Interest and Understanding';
-      } else if (percent >= 40) {
-        feedback[domain] = 'Moderate Fit – Can Explore Further';
-      } else {
-        feedback[domain] = 'Needs Improvement or Less Interest';
-      }
-    }
-
-    // SAVE TO Supabase
-    const { error } = await supabase.from('quiz_results').insert({
-      user_id: user.id,
-      feedback,
-      iq_score: finalCommonCorrect,
+    const feedback = Object.entries(domainScores).map(([domain, score]) => {
+      let message = score >= 3 ? 'You seem confident in this domain.' : 'Consider exploring more.';
+      return { domain, score, message };
     });
 
-    if (error) {
-      console.error('Error saving quiz results:', error.message);
-      return;
-    }
+    await supabase.from('quiz_results').insert([
+      {
+        user_id: user.id,
+        result: feedback,
+        submitted_at: new Date(),
+      },
+    ]);
 
-    navigate('/result', { state: { feedback, iq_score: finalCommonCorrect } });
+    navigate('/result');
   };
 
-  const handleLeaveQuiz = () => {
-    if (!selectedOption) return;
+  if (filteredQuestions.length === 0) return (
+    <div className="flex items-center justify-center h-screen text-center px-4">
+      <p className="text-xl font-semibold text-gray-700">
+        Loading quiz questions based on your selected domains...
+      </p>
+    </div>
+  );
 
-    const currentQ = questions[currentIdx];
-    const isCorrect = selectedOption === currentQ.answer;
-    const lastAnswer = { domain: currentQ.domain, isCorrect };
+  if (currentQuestion >= filteredQuestions.length) {
+    handleSubmit();
+    return (
+      <div className="flex items-center justify-center h-screen text-center px-4">
+        <p className="text-xl font-semibold text-gray-700">Submitting your responses...</p>
+      </div>
+    );
+  }
 
-    if (window.confirm('Quiz will auto submit. Are you sure you want to leave now?')) {
-      finishQuiz({ isFinal: true, lastAnswer });
-    }
-  };
-
-  if (!user) return <div className="text-center mt-10 text-lg">User not found.</div>;
-  if (questions.length === 0) return <div className="text-center mt-10 text-lg">Loading quiz questions...</div>;
-
-  const current = questions[currentIdx];
+  const question = filteredQuestions[currentQuestion];
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-100 to-blue-100 p-4">
-      <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-xl">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-lg font-semibold text-gray-700">
-            Question {currentIdx + 1} of {questions.length}
-          </h2>
-          <span className="text-sm font-mono text-red-600">⏱ {timer}s</span>
+    <div className="min-h-screen bg-gradient-to-br from-indigo-100 to-purple-200 px-4 py-8 sm:px-6 md:px-12 lg:px-24">
+      <div className="max-w-3xl mx-auto bg-white rounded-2xl shadow-xl p-6 sm:p-10">
+        <div className="flex justify-between items-center mb-4 text-sm text-gray-600">
+          <p>Question {currentQuestion + 1} of {filteredQuestions.length}</p>
+          <p>Time Left: {Math.floor(timer / 60)}:{String(timer % 60).padStart(2, '0')}</p>
         </div>
 
-        {/* Timer Bar */}
-        <div className="w-full bg-gray-200 rounded-full h-2 mb-6 overflow-hidden">
-          <div
-            className="bg-blue-600 h-full transition-all duration-1000"
-            style={{ width: `${(timer / 30) * 100}% ` }}
-          ></div>
-        </div>
+        <h2 className="text-2xl sm:text-3xl font-bold text-indigo-800 mb-6">{question.question}</h2>
 
-        {/* Question */}
-        <h3 className="text-xl font-bold text-black mb-4">{current.question}</h3>
-
-        {/* Options */}
-        <div className="space-y-3 mb-6">
-          {current.options.map((option, idx) => (
-            <label
-              key={idx}
-              className={`block text-black text-lg pl-2 py-3 border rounded-xl cursor-pointer transition duration-300 ${
-                selectedOption === option
-                  ? 'bg-blue-100 border-blue-500 text-blue-800'
-                  : 'hover:bg-gray-100'
-              }`}
+        <div className="grid gap-4">
+          {question.options.map((option, index) => (
+            <button
+              key={index}
+              onClick={() => handleAnswer(option)}
+              className="btn-gradient-purple text-base sm:text-lg"
             >
-              <input
-                type="radio"
-                name="option"
-                value={option}
-                checked={selectedOption === option}
-                onChange={() => setSelectedOption(option)}
-                className="mr-3"
-              />
               {option}
-            </label>
+            </button>
           ))}
-        </div>
-
-        {/* Buttons */}
-        <div className="flex flex-col sm:flex-row justify-between gap-4">
-          <button
-            onClick={handleLeaveQuiz}
-            className="w-full sm:w-1/2 bg-red-600 text-white py-2 px-4 rounded-xl font-semibold transition hover:bg-red-700"
-          >
-            Submit Now & Leave
-          </button>
-
-          <button
-            onClick={handleNext}
-            disabled={!selectedOption}
-            className="w-full sm:w-1/2 bg-blue-600 text-white py-2 px-4 rounded-xl font-semibold transition hover:bg-blue-700 disabled:opacity-50"
-          >
-            {currentIdx === questions.length - 1 ? 'Submit Quiz' : 'Next'}
-          </button>
         </div>
       </div>
     </div>

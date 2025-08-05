@@ -81,30 +81,34 @@ const Roadmaps = () => {
   };
 
   return (
-    <div className="p-6 min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 relative">
+    <div className="px-4 py-8 min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 relative">
       {/* 🔙 Back Button */}
       <button
         onClick={() => navigate('/dashboard')}
-        className="absolute top-4 left-4 bg-white text-[#283740] px-4 py-1 rounded-full shadow hover:bg-gray-200 transition font-medium text-sm"
+        className="absolute top-4 left-4 sm:top-6 sm:left-6 bg-gray-700 text-white px-3 py-1.5 rounded hover:bg-gray-800 text-xs sm:text-sm shadow"
       >
-       ← Back to Dashboard
+        ← Back
       </button>
 
-      <div className="max-w-4xl mx-auto bg-white shadow-2xl rounded-xl p-8">
-        <h1 className="text-4xl font-extrabold text-center text-indigo-700 mb-8">
+      <div className="max-w-4xl mx-auto bg-white shadow-2xl rounded-xl p-6 sm:p-8">
+        <h1 className="text-2xl sm:text-4xl font-extrabold text-center text-indigo-700 mb-6 sm:mb-8">
           🎯 Your Career Roadmaps
         </h1>
 
         {selectedDomains.length === 0 ? (
-          <p className="text-center text-gray-500 text-lg">Loading or no domains selected...</p>
+          <p className="text-center text-gray-500 text-base sm:text-lg">
+            Loading or no domains selected...
+          </p>
         ) : (
           selectedDomains.map((domain) => (
             <div
               key={domain}
               className="mb-6 border-l-4 border-indigo-400 bg-indigo-50 rounded-md px-4 py-3 shadow-sm"
             >
-              <h2 className="text-2xl font-semibold text-indigo-700 mb-2">{domain}</h2>
-              <ul className="list-disc list-inside space-y-1 text-gray-800">
+              <h2 className="text-lg sm:text-2xl font-semibold text-indigo-700 mb-2">
+                {domain}
+              </h2>
+              <ul className="list-disc list-inside space-y-1 text-gray-800 text-sm sm:text-base">
                 {(roadmapData[domain] || []).map((step, index) => (
                   <li key={index}>{step}</li>
                 ))}
@@ -113,16 +117,17 @@ const Roadmaps = () => {
           ))
         )}
 
-        <div className="flex justify-center gap-6 mt-10">
+        {/* Button Group - Responsive */}
+        <div className="flex flex-col sm:flex-row justify-center items-center gap-4 mt-10">
           <button
             onClick={handleSaveRoadmaps}
-            className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg shadow-md transition duration-300"
+            className="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg shadow-md transition"
           >
             {saved ? '✅ Saved!' : '💾 Save Roadmaps'}
           </button>
           <button
             onClick={handleExportPDF}
-            className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg shadow-md transition duration-300"
+            className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg shadow-md transition"
           >
             📄 Export as PDF
           </button>
