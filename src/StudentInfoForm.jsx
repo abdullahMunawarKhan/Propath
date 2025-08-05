@@ -88,7 +88,7 @@ const StudentInfoForm = ({ user }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-100 flex items-center justify-center px-4 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-100 flex items-center justify-center px-4 sm:px-6 py-8 mx-2 sm:mx-auto max-w-4xl">
       <form onSubmit={handleSubmit} className="bg-white shadow-2xl rounded-xl p-6 sm:p-8 w-full max-w-3xl">
         <h2 className="text-xl sm:text-2xl font-semibold mb-6 text-center text-indigo-700">
           Student Information
@@ -96,13 +96,17 @@ const StudentInfoForm = ({ user }) => {
 
         {/* Name */}
         <div className="mb-4">
-          <label className="block font-medium mb-1 text-gray-700">Name</label>
+          <label htmlFor="name" className="block font-medium mb-1 text-gray-700">
+            Name
+          </label>
           <input
+            id="name"
             type="text"
             className="w-full border rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
+            aria-required="true"
           />
         </div>
 
@@ -125,6 +129,7 @@ const StudentInfoForm = ({ user }) => {
                   setDomain([]);
                   setSuggestions(domainSuggestions);
                 }}
+                aria-pressed={classLevel === level}
               >
                 {level}
               </button>
@@ -160,6 +165,7 @@ const StudentInfoForm = ({ user }) => {
                     });
                     setSuggestions(filtered);
                   }}
+                  aria-pressed={stream === s}
                 >
                   {s}
                 </button>
@@ -193,7 +199,14 @@ const StudentInfoForm = ({ user }) => {
               {domain.map((d) => (
                 <div key={d} className="bg-green-100 text-green-700 px-3 py-1 rounded-md flex items-center gap-1 text-sm">
                   {d}
-                  <button onClick={() => handleDomainRemove(d)} className="hover:text-red-500">&times;</button>
+                  <button
+                    onClick={() => handleDomainRemove(d)}
+                    className="hover:text-red-500"
+                    aria-label={`Remove domain ${d}`}
+                    type="button"
+                  >
+                    &times;
+                  </button>
                 </div>
               ))}
             </div>
@@ -202,9 +215,10 @@ const StudentInfoForm = ({ user }) => {
 
         {/* Manual Domain Entry */}
         <div className="mb-4">
-          <label className="block font-medium mb-1 text-gray-700">Add a Custom Domain</label>
+          <label htmlFor="manual-domain" className="block font-medium mb-1 text-gray-700">Add a Custom Domain</label>
           <div className="flex flex-col sm:flex-row gap-2">
             <input
+              id="manual-domain"
               type="text"
               value={manualDomain}
               onChange={(e) => setManualDomain(e.target.value)}

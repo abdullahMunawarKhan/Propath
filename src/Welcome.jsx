@@ -8,7 +8,12 @@ const Welcome = () => {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-200 via-indigo-200 to-pink-200 px-4 sm:px-6">
       <div
         onClick={() => navigate('/login')}
-        className="flex flex-col items-center justify-center text-center cursor-pointer group"
+        className="flex flex-col items-center justify-center text-center cursor-pointer group p-4 sm:p-6 max-w-lg mx-auto focus:outline-none focus:ring-4 focus:ring-purple-400 rounded"
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') navigate('/login');
+        }}
       >
         <video
           src="/logo.mp4"

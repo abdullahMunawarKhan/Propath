@@ -74,91 +74,95 @@ const Explore = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#e0c3fc] to-[#f9c2ff] font-[LilitaOne] text-[#0D0D0D]">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-100 font-[LilitaOne] text-[#0D0D0D]">
       {/* Header */}
-      <header className="bg-gradient-to-r from-[#2c3e50] to-[#34495e] text-white py-10 px-4 text-center shadow-xl relative">
+      <header className="bg-gradient-to-r from-[#2c3e50] to-[#34495e] text-white py-10 px-6 sm:px-12 text-center shadow-xl relative">
         <button
           onClick={() => navigate('/dashboard')}
-          className="absolute top-4 left-4 bg-gray-700 text-white px-3 py-1.5 rounded hover:bg-gray-800 text-sm sm:px-4 sm:py-2 sm:text-base"
+          className="absolute top-5 left-6 sm:left-12 bg-[#34495e] hover:bg-[#2c3e50] text-white px-4 py-2 rounded-full shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white transition"
+          aria-label="Back to Dashboard"
         >
-          ← Back
+          ← Back to Dashboard
         </button>
-        <h1 className="text-3xl sm:text-5xl font-extrabold mb-3 tracking-wide">Career Path Explorer</h1>
-        <p className="text-lg sm:text-2xl mb-6">Discover diverse career opportunities after 10th grade</p>
+        <h1 className="text-3xl sm:text-5xl font-extrabold mb-3 tracking-wide max-w-4xl mx-auto">
+          Career Path Explorer
+        </h1>
+        <p className="text-lg sm:text-2xl mb-6 max-w-3xl mx-auto">
+          Discover diverse career opportunities after 10th grade
+        </p>
         <div className="relative max-w-xl mx-auto">
           <input
             type="text"
             placeholder="Search careers..."
-            className="w-full px-4 sm:px-6 py-2.5 sm:py-3 rounded-full text-gray-800 focus:outline-none shadow-xl text-sm sm:text-base"
+            className="w-full px-5 sm:px-6 py-3 rounded-full text-gray-800 focus:outline-none focus:ring-4 focus:ring-indigo-500 shadow-lg text-base sm:text-lg"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
           <button
-            className="absolute right-2 top-2 sm:top-2.5 bg-indigo-500 hover:bg-indigo-700 text-white px-3 sm:px-4 py-1 rounded-full text-sm shadow"
+            className="absolute right-3 top-1/2 transform -translate-y-1/2 bg-indigo-600 hover:bg-indigo-800 text-white px-5 py-2 rounded-full shadow-lg text-base sm:text-lg font-semibold transition focus:outline-none focus:ring-4 focus:ring-indigo-400"
             onClick={handleSearch}
+            aria-label="Search Careers"
           >
             Search
           </button>
         </div>
       </header>
 
-      {/* Main */}
-      <main className="px-4 sm:px-6 py-10">
-        {/* Title */}
-        <div className="text-center mb-10">
-          <h2 className="text-2xl sm:text-4xl font-bold mb-3 text-[#2c3e50]">Explore Career Options</h2>
-          <p className="text-sm sm:text-lg text-gray-700 max-w-2xl mx-auto">
-            Your 10th grade results don't define your future. Explore careers that match your interests and skills.
-          </p>
-        </div>
-
+      {/* Main Content */}
+      <main className="px-6 sm:px-12 py-12 max-w-[1200px] mx-auto">
         {/* Categories */}
-        <div className="flex flex-wrap justify-center gap-3 sm:gap-4 mb-10 overflow-x-auto scrollbar-thin scrollbar-thumb-gray-400 px-1">
+        <div className="flex flex-wrap justify-center gap-4 mb-12 overflow-x-auto scrollbar-thin scrollbar-thumb-gray-400 px-1 sm:px-0">
           {categories.map(({ label, value }) => (
             <button
               key={value}
               onClick={() => handleFilter(value)}
-              className={`text-xs sm:text-sm px-4 sm:px-6 py-1.5 sm:py-2 rounded-full transition border-2 border-[#34495e] shadow-sm ${
+              className={`whitespace-nowrap text-sm sm:text-base px-6 py-2 rounded-full font-medium transition shadow-sm border-2 ${
                 activeCategory === value
-                  ? 'bg-[#34495e] text-white scale-105'
+                  ? 'bg-[#34495e] text-white scale-105 shadow-lg'
                   : 'bg-white text-[#34495e] hover:scale-105 hover:bg-[#ecf0f1]'
               }`}
+              aria-pressed={activeCategory === value}
             >
               {label}
             </button>
           ))}
         </div>
 
-        {/* Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* Career Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {filteredCareers.map((career) => (
             <div
               key={career.id}
-              className="card relative h-[400px] sm:h-[420px] perspective transition-all duration-300 hover:shadow-2xl"
+              className="card relative h-[420px] perspective transition-all duration-300 hover:shadow-2xl rounded-lg"
             >
-              <div className="card-inner w-full h-full transition-transform duration-500 transform-style-preserve-3d hover:rotate-y-180">
+              <div className="card-inner w-full h-full transition-transform duration-500 transform-style-preserve-3d hover:rotate-y-180 rounded-lg">
                 {/* Front */}
                 <div className="card-front absolute w-full h-full backface-hidden rounded-lg overflow-hidden bg-white shadow-md">
-                  <img src={career.image} alt={career.alt} className="w-full h-full object-cover" />
-                  <div className="absolute bottom-0 left-0 right-0 bg-[#34495ecc] text-white text-center py-2 font-semibold text-base sm:text-lg">
+                  <img
+                    src={career.image}
+                    alt={career.alt}
+                    className="w-full h-full object-cover rounded-lg"
+                    loading="lazy"
+                  />
+                  <div className="absolute bottom-0 left-0 right-0 bg-[#34495ecc] text-white text-center py-3 font-semibold text-lg sm:text-xl rounded-b-lg">
                     {career.title}
                   </div>
                 </div>
                 {/* Back */}
-                <div className="card-back absolute w-full h-full backface-hidden rounded-lg bg-white shadow-md p-4 transform rotate-y-180 flex flex-col justify-between overflow-y-auto max-h-[400px]">
+                <div className="card-back absolute w-full h-full backface-hidden rounded-lg bg-white shadow-md p-6 transform rotate-y-180 flex flex-col justify-between overflow-y-auto max-h-[420px]">
                   <div>
-                    <h3 className="text-base sm:text-xl font-bold mb-2 text-[#2c3e50]">{career.title}</h3>
-                    <p className="mb-3 text-gray-600 text-sm">{career.description}</p>
-                    <div className="bg-gray-100 p-2 rounded mb-2">
-                      <h4 className="font-semibold text-[#3B4E59] text-sm">Tech Trend:</h4>
-                      <p className="text-xs">{career.trend}</p>
+                    <h3 className="text-lg sm:text-2xl font-bold mb-4 text-[#2c3e50]">{career.title}</h3>
+                    <p className="mb-4 text-gray-700 text-base sm:text-lg">{career.description}</p>
+                    <div className="bg-gray-100 p-3 rounded mb-3">
+                      <h4 className="font-semibold text-[#3B4E59] mb-1">Tech Trend:</h4>
+                      <p className="text-sm">{career.trend}</p>
                     </div>
-                    <div className="bg-gray-100 p-2 rounded">
-                      <h4 className="font-semibold text-[#3B4E59] text-sm">Growth:</h4>
-                      <p className="text-xs">{career.booming}</p>
+                    <div className="bg-gray-100 p-3 rounded">
+                      <h4 className="font-semibold text-[#3B4E59] mb-1">Growth:</h4>
+                      <p className="text-sm">{career.booming}</p>
                     </div>
                   </div>
-                  <span className="inline-block mt-3 px-3 py-1 text-xs rounded-full bg-[#A6A6A6] text-white self-start">
+                  <span className="inline-block mt-4 px-4 py-1 text-sm rounded-full bg-[#A6A6A6] text-white self-start">
                     {career.category.replace('-', ' ').replace(/\b\w/g, (l) => l.toUpperCase())}
                   </span>
                 </div>
@@ -167,11 +171,6 @@ const Explore = () => {
           ))}
         </div>
       </main>
-
-      {/* Footer */}
-      <footer className="bg-gradient-to-r from-[#2c3e50] to-[#34495e] text-white py-4 text-center text-sm sm:text-base">
-        © 2025 ProPath – All Rights Reserved
-      </footer>
     </div>
   );
 };

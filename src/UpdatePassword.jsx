@@ -1,4 +1,3 @@
-// src/UpdatePassword.jsx
 import { useEffect, useState } from 'react';
 import { supabase } from './utils/supabase';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
@@ -124,7 +123,7 @@ const UpdatePassword = () => {
                   />
                   <button
                     type="button"
-                    onClick={() => setShowPassword((s) => !s)}
+                    onClick={() => setShowPassword(s => !s)}
                     className="absolute top-3 right-3 text-gray-600"
                     aria-label="Toggle password visibility"
                   >

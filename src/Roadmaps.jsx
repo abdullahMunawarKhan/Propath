@@ -81,17 +81,18 @@ const Roadmaps = () => {
   };
 
   return (
-    <div className="px-4 py-8 min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 relative">
-      {/* 🔙 Back Button */}
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 relative px-5 sm:px-8 lg:px-16 py-8 font-[LilitaOne] text-[#0D0D0D]">
+      {/* Back Button */}
       <button
         onClick={() => navigate('/dashboard')}
-        className="absolute top-4 left-4 sm:top-6 sm:left-6 bg-gray-700 text-white px-3 py-1.5 rounded hover:bg-gray-800 text-xs sm:text-sm shadow"
+        className="absolute top-6 left-6 bg-[#34495e] hover:bg-[#2c3e50] text-white px-5 py-2 rounded-full shadow-md font-semibold text-sm sm:text-base transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+        aria-label="Back to Dashboard"
       >
-        ← Back
+        ← Back to Dashboard
       </button>
 
-      <div className="max-w-4xl mx-auto bg-white shadow-2xl rounded-xl p-6 sm:p-8">
-        <h1 className="text-2xl sm:text-4xl font-extrabold text-center text-indigo-700 mb-6 sm:mb-8">
+      <div className="max-w-4xl mx-auto bg-white shadow-2xl rounded-xl p-6 sm:p-10 mt-20">
+        <h1 className="text-2xl sm:text-4xl font-extrabold text-center text-indigo-700 mb-8">
           🎯 Your Career Roadmaps
         </h1>
 
@@ -103,12 +104,12 @@ const Roadmaps = () => {
           selectedDomains.map((domain) => (
             <div
               key={domain}
-              className="mb-6 border-l-4 border-indigo-400 bg-indigo-50 rounded-md px-4 py-3 shadow-sm"
+              className="mb-8 border-l-4 border-indigo-400 bg-indigo-50 rounded-md px-6 py-4 shadow-sm"
             >
-              <h2 className="text-lg sm:text-2xl font-semibold text-indigo-700 mb-2">
+              <h2 className="text-lg sm:text-2xl font-semibold text-indigo-700 mb-3">
                 {domain}
               </h2>
-              <ul className="list-disc list-inside space-y-1 text-gray-800 text-sm sm:text-base">
+              <ul className="list-disc list-inside space-y-2 text-gray-800 text-sm sm:text-base max-h-72 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-indigo-400 scrollbar-track-indigo-100">
                 {(roadmapData[domain] || []).map((step, index) => (
                   <li key={index}>{step}</li>
                 ))}
@@ -117,17 +118,22 @@ const Roadmaps = () => {
           ))
         )}
 
-        {/* Button Group - Responsive */}
-        <div className="flex flex-col sm:flex-row justify-center items-center gap-4 mt-10">
+        <div className="flex flex-col sm:flex-row justify-center items-center gap-6 mt-12">
           <button
             onClick={handleSaveRoadmaps}
-            className="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg shadow-md transition"
+            className={`w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg shadow-md transition font-semibold text-base focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 ${
+              saved ? 'cursor-default' : ''
+            }`}
+            disabled={saved}
+            aria-live="polite"
+            aria-atomic="true"
           >
             {saved ? '✅ Saved!' : '💾 Save Roadmaps'}
           </button>
+
           <button
             onClick={handleExportPDF}
-            className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg shadow-md transition"
+            className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-lg shadow-md transition font-semibold text-base focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
           >
             📄 Export as PDF
           </button>

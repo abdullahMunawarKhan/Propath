@@ -46,8 +46,8 @@ function Signup() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-100 to-blue-200 p-6">
-      <div className="bg-white shadow-xl rounded-2xl px-8 pt-6 pb-8 w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-100 to-blue-200 p-6 mx-2 sm:mx-auto">
+      <div className="bg-white shadow-xl rounded-2xl px-8 pt-6 pb-8 w-full max-w-md mx-4 sm:mx-auto">
         <h2 className="text-3xl font-bold mb-6 text-center text-green-700">Create an Account</h2>
 
         {message.text && (
@@ -63,6 +63,7 @@ function Signup() {
         <input
           type="email"
           placeholder="Email"
+          aria-label="Email"
           className="w-full mb-4 px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-green-300"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
@@ -72,6 +73,7 @@ function Signup() {
           <input
             type={showPassword ? 'text' : 'password'}
             placeholder="Set Password"
+            aria-label="Set Password"
             className="w-full px-4 py-2 border border-gray-300 rounded pr-10 focus:ring-2 focus:ring-green-300"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
@@ -80,6 +82,7 @@ function Signup() {
             type="button"
             className="absolute inset-y-0 right-3 flex items-center text-gray-500"
             onClick={() => setShowPassword(!showPassword)}
+            aria-label={showPassword ? 'Hide password' : 'Show password'}
           >
             {showPassword ? <EyeSlashIcon className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
           </button>
@@ -88,6 +91,7 @@ function Signup() {
         <input
           type={showPassword ? 'text' : 'password'}
           placeholder="Confirm Password"
+          aria-label="Confirm Password"
           className="w-full mb-6 px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-green-300"
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}

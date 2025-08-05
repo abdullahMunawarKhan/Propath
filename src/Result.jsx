@@ -80,22 +80,27 @@ const Result = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 px-4 py-6 sm:py-12 relative">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 px-4 py-6 sm:py-12 relative font-[LilitaOne] text-[#0D0D0D]">
       {/* Back button */}
       <button
         onClick={() => navigate('/dashboard')}
-        className="absolute top-4 left-4 bg-gray-700 text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded text-sm sm:text-base hover:bg-gray-800 shadow"
+        className="absolute top-5 left-5 bg-[#34495e] hover:bg-[#2c3e50] text-white px-5 py-2 rounded-full shadow-lg font-semibold text-sm sm:text-base transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+        aria-label="Back to Dashboard"
       >
         ← Back
       </button>
 
-      <div className="w-full max-w-3xl mx-auto bg-white rounded-2xl shadow-lg p-4 sm:p-8 mt-10 sm:mt-16">
-        <h1 className="text-2xl sm:text-3xl font-bold text-blue-700 mb-4 sm:mb-6 text-center">
+      <div className="w-full max-w-3xl mx-auto bg-white rounded-2xl shadow-lg p-6 sm:p-10 mt-16 sm:mt-20">
+        <h1 className="text-2xl sm:text-3xl font-bold text-blue-700 mb-6 text-center">
           🎯 Your Career Domain Feedback
         </h1>
 
         {loading ? (
-          <div className="text-center text-blue-500 animate-pulse text-base sm:text-lg">
+          <div
+            className="text-center text-blue-500 animate-pulse text-base sm:text-lg"
+            role="status"
+            aria-live="polite"
+          >
             Loading your feedback...
           </div>
         ) : (
@@ -129,9 +134,7 @@ const Result = () => {
                   ))}
               </ul>
             ) : (
-              <p className="text-center text-gray-500 text-base sm:text-lg">
-                No feedback available yet.
-              </p>
+              <p className="text-center text-gray-500 text-base sm:text-lg">No feedback available yet.</p>
             )}
           </>
         )}
@@ -140,21 +143,21 @@ const Result = () => {
         <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
           <button
             onClick={handleSaveResult}
-            className="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-6 rounded-xl transition text-sm sm:text-base"
+            className="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-8 rounded-xl transition text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
           >
             Save Result
           </button>
 
           <button
             onClick={() => navigate('/dashboard')}
-            className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-xl transition text-sm sm:text-base"
+            className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-8 rounded-xl transition text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
           >
             ⬅ Back to Dashboard
           </button>
         </div>
 
         {saveStatus && (
-          <div className="text-center mt-4 text-green-700 font-medium text-sm sm:text-base">
+          <div className="text-center mt-4 text-green-700 font-medium text-sm sm:text-base" role="alert">
             {saveStatus}
           </div>
         )}
