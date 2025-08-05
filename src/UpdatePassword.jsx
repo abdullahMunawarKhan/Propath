@@ -13,24 +13,10 @@ const UpdatePassword = () => {
 
   useEffect(() => {
     const restoreSession = async () => {
-      const hash = window.location.hash.substr(1); // remove "#"
-      const params = new URLSearchParams(hash);
-      const access_token = params.get('access_token');
-      const refresh_token = params.get('refresh_token');
-
-      if (access_token && refresh_token) {
-        const { data, error } = await supabase.auth.setSession({
-          access_token,
-          refresh_token,
-        });
-
-        if (error) {
-          setStatus('Session could not be restored. Please try the link again.');
-        }
-      } else {
-        setStatus('Invalid reset link. Please request a new one.');
+      const { error } = await supabase.auth.exchangeCodeForSession();
+      if (error) {
+        setStatus('❌ Session could not be restored. Please try the reset link again.');
       }
-
       setLoading(false);
     };
 
@@ -39,7 +25,7 @@ const UpdatePassword = () => {
 
   const handleUpdate = async () => {
     if (!newPassword || !confirmPassword) {
-      setStatus('Please fill in both password fields.');
+      setStatus('⚠️ Please fill in both password fields.');
       return;
     }
 
@@ -51,7 +37,7 @@ const UpdatePassword = () => {
     const { error } = await supabase.auth.updateUser({ password: newPassword });
 
     if (error) {
-      setStatus('❌ Failed to update password. Please try again.');
+      setStatus('❌ Failed to update password. ' + error.message);
     } else {
       setStatus('✅ Password updated successfully. Redirecting to login...');
       setTimeout(() => navigate('/login'), 2000);
