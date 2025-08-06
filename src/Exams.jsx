@@ -14,7 +14,10 @@ const Exams = () => {
   const [showModal, setShowModal] = useState(false);
   const [selectedExam, setSelectedExam] = useState(null);
   const [savedExams, setSavedExams] = useState([]);
+  const [userDomains, setUserDomains] = useState([]);
+  const [filteredExams, setFilteredExams] = useState([]);
 
+  // Fetch saved exams for the user
   useEffect(() => {
     const fetchSavedExams = async () => {
       const { data: userData } = await supabase.auth.getUser();
@@ -29,9 +32,43 @@ const Exams = () => {
         setSavedExams(data.map((entry) => entry.exam_name));
       }
     };
-
     fetchSavedExams();
   }, []);
+
+  // Fetch user-selected domains
+  useEffect(() => {
+    const fetchUserDomains = async () => {
+      const { data: userSession } = await supabase.auth.getUser();
+      const userId = userSession?.user?.id;
+      if (!userId) return;
+
+      const { data } = await supabase
+        .from('students')
+        .select('domain')
+        .eq('user_id', userId)
+        .single();
+
+      setUserDomains(data?.domain || []);
+    };
+    fetchUserDomains();
+  }, []);
+
+  // Filter exams according to user's domains
+  useEffect(() => {
+    if (!userDomains.length) {
+      setFilteredExams([]);
+    } else {
+      // case-insensitive matching
+      setFilteredExams(
+        examData.filter((exam) =>
+          Array.isArray(exam.domains) &&
+          exam.domains.some(dom =>
+            userDomains.some(userDom => userDom.toLowerCase() === dom.toLowerCase())
+          )
+        )
+      );
+    }
+  }, [userDomains]);
 
   const handleSave = async (examName) => {
     const { data: userData } = await supabase.auth.getUser();
@@ -79,44 +116,56 @@ const Exams = () => {
         🎓 Competitive Exams
       </h1>
 
+      {/* Note if no exams available */}
+      {userDomains.length === 0 && (
+        <div className="text-center text-lg text-gray-600 my-10">
+          <p>No domains selected.<br />Please select your interests in your profile.</p>
+        </div>
+      )}
+
       {/* Cards Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
-        {examData.map((exam) => (
-          <div
-            key={exam.name}
-            className="bg-white shadow-md p-6 rounded-lg hover:shadow-xl transform hover:scale-105 transition duration-300 flex flex-col justify-between"
-            role="region"
-            aria-labelledby={`exam-${exam.name.replace(/\s+/g, '-')}`}
-            tabIndex={0}
-          >
-            <h2
-              id={`exam-${exam.name.replace(/\s+/g, '-')}`}
-              className="text-lg sm:text-xl font-bold text-blue-800 mb-2"
+        {filteredExams.length > 0 ? (
+          filteredExams.map((exam) => (
+            <div
+              key={exam.name}
+              className="bg-white shadow-md p-6 rounded-lg hover:shadow-xl transform hover:scale-105 transition duration-300 flex flex-col justify-between"
+              role="region"
+              aria-labelledby={`exam-${exam.name.replace(/\s+/g, '-')}`}
+              tabIndex={0}
             >
-              {exam.name}
-            </h2>
-            <p className="text-sm mb-1"><strong>Eligibility:</strong> {exam.eligibility}</p>
-            <p className="text-sm mb-4"><strong>Becomes:</strong> {exam.outcome}</p>
-
-            <div className="flex justify-between mt-auto">
-              <button
-                onClick={() => openModal(exam)}
-                className="text-sm bg-indigo-600 text-white px-4 py-2 rounded-lg shadow hover:bg-indigo-700 transition focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                aria-label={`More info about ${exam.name}`}
+              <h2
+                id={`exam-${exam.name.replace(/\s+/g, '-')}`}
+                className="text-lg sm:text-xl font-bold text-blue-800 mb-2"
               >
-                More Info
-              </button>
+                {exam.name}
+              </h2>
+              <p className="text-sm mb-1"><strong>Eligibility:</strong> {exam.eligibility}</p>
+              <p className="text-sm mb-4"><strong>Becomes:</strong> {exam.outcome}</p>
 
-              <button
-                onClick={() => handleSave(exam.name)}
-                className="text-sm bg-green-600 text-white px-4 py-2 rounded-lg shadow hover:bg-green-700 transition focus:outline-none focus:ring-2 focus:ring-green-500"
-                aria-label={`Save ${exam.name} exam`}
-              >
-                Save
-              </button>
+              <div className="flex justify-between mt-auto">
+                <button
+                  onClick={() => openModal(exam)}
+                  className="text-sm bg-indigo-600 text-white px-4 py-2 rounded-lg shadow hover:bg-indigo-700 transition focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  aria-label={`More info about ${exam.name}`}
+                >
+                  More Info
+                </button>
+                <button
+                  onClick={() => handleSave(exam.name)}
+                  className="text-sm bg-green-600 text-white px-4 py-2 rounded-lg shadow hover:bg-green-700 transition focus:outline-none focus:ring-2 focus:ring-green-500"
+                  aria-label={`Save ${exam.name} exam`}
+                >
+                  Save
+                </button>
+              </div>
             </div>
+          ))
+        ) : userDomains.length > 0 ? (
+          <div className="col-span-full text-center text-lg text-gray-500 my-10">
+            No exams matched your selected domains.
           </div>
-        ))}
+        ) : null}
       </div>
 
       {/* View Saved Exams */}
@@ -156,15 +205,15 @@ const Exams = () => {
             <div>
               <strong className="text-sm">Resources:</strong>
               <ul className="list-disc ml-6 mt-1 space-y-1">
-                {parseResources(selectedExam.resources).map((link, index) => (
-                  <li key={index}>
+                {parseResources(selectedExam.resources).map((link, idx) => (
+                  <li key={idx}>
                     <a
                       href={link}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-indigo-600 underline text-sm hover:text-indigo-800"
                     >
-                      Resource {index + 1}
+                      Resource {idx + 1}
                     </a>
                   </li>
                 ))}

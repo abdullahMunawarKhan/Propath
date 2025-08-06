@@ -3,34 +3,50 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from './utils/supabase';
 import questions from './questions';
 
+const TOTAL_TIME = 300; // total quiz time in seconds (5 minutes)
+
 const Quiz = ({ user }) => {
   const [filteredQuestions, setFilteredQuestions] = useState([]);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState([]);
-  const [timer, setTimer] = useState(300); // 5 minutes in seconds
+  const [selectedOption, setSelectedOption] = useState(null);
+  const [timer, setTimer] = useState(TOTAL_TIME);
   const navigate = useNavigate();
   const timerRef = useRef(null);
 
   useEffect(() => {
-    const fetchDomains = async () => {
+    const fetchDomainsAndPrepareQuestions = async () => {
       const { data, error } = await supabase
         .from('students')
         .select('domain')
         .eq('user_id', user.id)
         .single();
 
-      if (data) {
-        const userDomains = data.domain || [];
-        const filtered = questions.filter(q => userDomains.includes(q.domain));
-        setFilteredQuestions(filtered.slice(0, 10)); // max 10 questions
-      }
+      if (!data || error) return;
+
+      const userDomains = data.domain || [];
+
+      // Get domain questions based on user's selected domains
+      const domainQuestions = questions.filter(q => userDomains.includes(q.domain));
+
+      // Get 'common' domain questions
+      const commonQuestions = questions.filter(q => q.domain === 'common');
+
+      // Pick first 5 common questions
+      const commonToInclude = commonQuestions.slice(0, 5);
+
+      // Combine domain questions first, then common at end
+      const combined = [...domainQuestions, ...commonToInclude];
+
+      // Optionally limit total questions
+      setFilteredQuestions(combined.slice(0, 15));
     };
 
-    fetchDomains();
+    fetchDomainsAndPrepareQuestions();
   }, [user]);
 
   useEffect(() => {
-    // Start timer countdown
+    // Start countdown timer
     timerRef.current = setInterval(() => {
       setTimer(prev => {
         if (prev <= 1) {
@@ -41,44 +57,84 @@ const Quiz = ({ user }) => {
       });
     }, 1000);
 
-    // Cleanup on unmount
     return () => clearInterval(timerRef.current);
   }, []);
 
   useEffect(() => {
+    // Submit when time runs out
     if (timer === 0 && filteredQuestions.length > 0 && currentQuestion < filteredQuestions.length) {
       handleSubmit();
     }
   }, [timer]);
 
+  useEffect(() => {
+    // Submit when last question answered
+    if (currentQuestion >= filteredQuestions.length && filteredQuestions.length > 0) {
+      handleSubmit();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentQuestion, filteredQuestions]);
+
   const handleAnswer = (option) => {
-    setAnswers(prev => [...prev, { question: filteredQuestions[currentQuestion].question, selected: option }]);
-    setCurrentQuestion(prev => prev + 1);
+    setSelectedOption(option);
+
+    // Show selection briefly before advancing
+    setTimeout(() => {
+      setAnswers(prev => [...prev, { question: filteredQuestions[currentQuestion].question, selected: option }]);
+      setCurrentQuestion(prev => prev + 1);
+      setSelectedOption(null);
+    }, 200);
   };
 
   const handleSubmit = async () => {
     const domainScores = {};
+    let iqScore = 0;
 
     filteredQuestions.forEach((q, i) => {
       const selected = answers[i]?.selected;
-      if (selected === q.answer) {
-        domainScores[q.domain] = (domainScores[q.domain] || 0) + 1;
+      if (q.domain === 'common') {
+        if (selected === q.answer) iqScore += 1;
+      } else {
+        if (selected === q.answer) {
+          domainScores[q.domain] = (domainScores[q.domain] || 0) + 1;
+        }
       }
     });
 
     const feedback = Object.entries(domainScores).map(([domain, score]) => {
-      const message =
-        score >= 3 ? 'You seem confident in this domain.' : 'Consider exploring more.';
+      const message = score >= 3 ? 'You seem confident in this domain.' : 'Consider exploring more.';
       return { domain, score, message };
     });
 
-    await supabase.from('quiz_results').insert([
+    // Add common domain feedback with IQ score, separate from others
+    feedback.push({
+      domain: 'common',
+      score: iqScore,
+      message: 'IQ Section'
+    });
+
+    // Insert quiz result
+    const { error } = await supabase.from('quiz_results').insert([
       {
         user_id: user.id,
         result: feedback,
         submitted_at: new Date(),
       },
     ]);
+
+    // Insert IQ score separately into a dedicated table
+    const { error: iqError } = await supabase.from('iq_results').insert([
+      {
+        user_id: user.id,
+        iq_score: iqScore,
+        submitted_at: new Date(),
+      },
+    ]);
+
+    if (error || iqError) {
+      alert('Failed to submit quiz results. Please try again.');
+      return;
+    }
 
     navigate('/result');
   };
@@ -111,9 +167,24 @@ const Quiz = ({ user }) => {
 
   const question = filteredQuestions[currentQuestion];
 
+  // Calculate progress bar width percentage (100% down to 0%)
+  const progressPercent = (timer / TOTAL_TIME) * 100;
+
+  // Progress bar color: red if 10 seconds or less remain, else blue
+  const progressBarColor = timer <= 10 ? 'bg-red-500' : 'bg-blue-600';
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-100 to-purple-200 px-4 py-8 sm:px-6 md:px-12 lg:px-24">
       <div className="max-w-3xl mx-auto bg-white rounded-2xl shadow-xl p-6 sm:p-10">
+
+        {/* Progress bar */}
+        <div className="w-full h-2 bg-gray-300 rounded-full mb-6 overflow-hidden" aria-hidden="true">
+          <div
+            className={`${progressBarColor} h-2 rounded-full transition-all duration-500`}
+            style={{ width: `${progressPercent}%` }}
+          />
+        </div>
+
         <div className="flex justify-between items-center mb-4 text-sm text-gray-600" aria-live="polite">
           <p>Question {currentQuestion + 1} of {filteredQuestions.length}</p>
           <p>
@@ -124,17 +195,25 @@ const Quiz = ({ user }) => {
         <h2 className="text-2xl sm:text-3xl font-bold text-indigo-800 mb-6">{question.question}</h2>
 
         <div className="grid gap-4" role="list">
-          {question.options.map((option, index) => (
-            <button
-              key={index}
-              onClick={() => handleAnswer(option)}
-              className="btn-gradient-purple text-base sm:text-lg px-4 py-3 rounded-lg shadow-md hover:scale-105 transition-transform focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              role="listitem"
-              aria-label={`Answer option: ${option}`}
-            >
-              {option}
-            </button>
-          ))}
+          {question.options.map((option, index) => {
+            const isSelected = option === selectedOption;
+
+            return (
+              <button
+                key={index}
+                onClick={() => handleAnswer(option)}
+                className={`text-base sm:text-lg px-4 py-3 rounded-lg shadow-md transition-transform focus:outline-none focus:ring-2 focus:ring-indigo-500
+                  ${isSelected
+                    ? 'bg-blue-600 text-white hover:bg-blue-700'
+                    : 'bg-white text-gray-900 hover:bg-pink-100'
+                  }`}
+                role="listitem"
+                aria-label={`Answer option: ${option}`}
+              >
+                {option}
+              </button>
+            );
+          })}
         </div>
       </div>
     </div>

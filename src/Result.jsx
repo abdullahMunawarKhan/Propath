@@ -23,11 +23,12 @@ const Result = () => {
         return;
       }
 
+      // Fetch latest quiz results
       const { data, error } = await supabase
         .from('quiz_results')
-        .select('feedback, iq_score')
+        .select('result')
         .eq('user_id', userId)
-        .order('created_at', { ascending: false })
+        .order('submitted_at', { ascending: false })
         .limit(1);
 
       if (error) {
@@ -35,8 +36,14 @@ const Result = () => {
         setLoading(false);
       } else {
         const latest = data?.[0];
-        setFeedback(latest?.feedback || {});
-        setIqScore(latest?.iq_score || 0);
+        const result = latest?.result || [];
+
+        // Extract 'common' domain score for IQ calculation
+        const commonEntry = result.find(r => r.domain === 'common');
+        const commonScore = commonEntry ? commonEntry.score : 0;
+        setIqScore(commonScore);
+
+        setFeedback(result);
         setLoading(false);
       }
     };
@@ -55,8 +62,9 @@ const Result = () => {
 
     const { error } = await supabase.from('quiz_results').insert({
       user_id: userId,
-      feedback,
+      result: feedback,
       iq_score: iqScore,
+      submitted_at: new Date(),
     });
 
     if (error) {
@@ -69,10 +77,24 @@ const Result = () => {
   };
 
   const renderIqMessage = () => {
-    if (iqScore >= 2) {
+    if (iqScore === 5) {
       return (
-        <div className="bg-yellow-100 text-yellow-800 px-4 py-3 rounded-lg mb-6 text-center text-base sm:text-lg font-semibold shadow-sm border border-yellow-200">
-          🧠 You have a strong IQ. You're well-suited for competitive exams!
+        <div className="bg-green-100 text-green-800 px-4 py-3 rounded-lg mb-6 text-center text-base sm:text-lg font-semibold shadow-sm border border-green-300">
+          🧠 Excellent IQ! Outstanding performance in common questions.
+        </div>
+      );
+    }
+    if (iqScore >= 3) {
+      return (
+        <div className="bg-yellow-100 text-yellow-800 px-4 py-3 rounded-lg mb-6 text-center text-base sm:text-lg font-semibold shadow-sm border border-yellow-300">
+          🙂 Good IQ! Solid performance in common questions.
+        </div>
+      );
+    }
+    if (iqScore >= 0) {
+      return (
+        <div className="bg-red-100 text-red-800 px-4 py-3 rounded-lg mb-6 text-center text-base sm:text-lg font-semibold shadow-sm border border-red-300">
+          ⚠️ Need to improve IQ. Keep practicing your skills.
         </div>
       );
     }
@@ -107,34 +129,38 @@ const Result = () => {
           <>
             {renderIqMessage()}
 
-            {feedback && Object.keys(feedback).length > 0 ? (
+            {feedback && feedback.length > 0 ? (
               <ul className="space-y-4 sm:space-y-5">
-                {Object.entries(feedback)
-                  .filter(([domain]) => domain !== 'common')
-                  .map(([domain, msg]) => (
+                {feedback
+                  .filter(({ domain }) => domain !== 'common')
+                  .map(({ domain, message }) => (
                     <li
                       key={domain}
                       className="p-4 sm:p-5 rounded-xl shadow-sm border border-blue-100 bg-blue-50 hover:bg-blue-100 transition"
                     >
                       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 sm:gap-0">
-                        <span className="text-base sm:text-lg font-semibold text-blue-800">{domain}</span>
+                        <span className="text-base sm:text-lg font-semibold text-blue-800">
+                          {domain}
+                        </span>
                         <span
                           className={`text-xs sm:text-sm px-3 py-1 rounded-full font-medium ${
-                            msg.includes('Strong')
+                            message.includes('confident')
                               ? 'bg-green-200 text-green-800'
-                              : msg.includes('Moderate')
+                              : message.includes('exploring')
                               ? 'bg-yellow-200 text-yellow-800'
                               : 'bg-red-200 text-red-800'
                           }`}
                         >
-                          {msg}
+                          {message}
                         </span>
                       </div>
                     </li>
                   ))}
               </ul>
             ) : (
-              <p className="text-center text-gray-500 text-base sm:text-lg">No feedback available yet.</p>
+              <p className="text-center text-gray-500 text-base sm:text-lg">
+                No feedback available yet.
+              </p>
             )}
           </>
         )}
@@ -157,7 +183,10 @@ const Result = () => {
         </div>
 
         {saveStatus && (
-          <div className="text-center mt-4 text-green-700 font-medium text-sm sm:text-base" role="alert">
+          <div
+            className="text-center mt-4 text-green-700 font-medium text-sm sm:text-base"
+            role="alert"
+          >
             {saveStatus}
           </div>
         )}

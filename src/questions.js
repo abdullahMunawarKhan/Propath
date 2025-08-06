@@ -29,7 +29,7 @@ const questions = [
   },
    {
     id:5,
-    domain:["common"],
+    domain:'common',
     question: '5+3=28,9+1=810, 8+6=214 then 7+3=?',
     options:['410','37',,'710','410'],
     answer:'410',
@@ -37,14 +37,14 @@ const questions = [
   
   {
     id:8,
-    domain:["common"],
+    domain:'common',
     question: "If A is the brother of B and B is the sister of C, then C is A's:",
     options:['brother','Sister','Brother or sister','Father'],
     answer:'Brother or Sister',
   },
   {
     id:6,
-    domain:["common"],
+    domain:'common',
     question: 'If you face East and turn right, what direction are you facing now?',
     options:['North','South','West','South-west'],
     answer:'South',
@@ -52,7 +52,7 @@ const questions = [
  
   {
     id:7,
-    domain:["common"],
+    domain:'common',
     question: 'If CAT = DBU, then DOG = ?',
     options:['DPH','EPH','EOH','EPG'],
     answer:'EPH',
@@ -64,13 +64,13 @@ const questions = [
   //   options:[],
   //   answer:'',
   // },
-  // {
-  //   id:10,
-  //   domain:["common"],
-  //   question: ' ',
-  //   options:[],
-  //   answer:'',
-  // },
+  {
+    id:10,
+    domain:'common',
+    question: 'A vehicle travels from point A to point B at a speed of 50 km/h and returns from B to A by another route which is 20% longer than the first. If the average speed for the whole journey is 40 km/h, find the speed of the vehicle on the return journey. ',
+    options:['32 km/hr','35 km/hr','30km/hr','28 km/hr',],
+    answer:'32 km/hr',
+  },
   // {
   //   id:11,
   //   domain:["common"],

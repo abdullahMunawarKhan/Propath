@@ -1,14 +1,8 @@
 const examData = [
-  {
-    name: 'MPSC',
-    eligibility: '12th Pass or Graduate',
-    outcome: 'Government Officer',
-    pattern: 'Prelims + Mains + Interview',
-    syllabus: 'History, Polity, Economics, General Science',
-    resources: 'https://mpsconline.gov.in, NCERTs, Rajyaseva Books'
-  },
+
   {
     name: 'SSC CGL',
+    domains:['UPSC'],
     eligibility: 'Graduation from any recognized university',
     outcome: 'Income Tax Officer, Excise Inspector, etc.',
     pattern: 'Tier I, Tier II, Tier III, Tier IV',
@@ -17,6 +11,7 @@ const examData = [
   },
   {
     name: 'UPSC',
+    domains:['UPSC'],
     eligibility: 'Graduate in any discipline',
     outcome: 'IAS, IPS, IFS, IRS, etc.',
     pattern: 'Prelims + Mains + Interview',
@@ -25,6 +20,7 @@ const examData = [
   },
   {
     name: 'NDA',
+    domains:['UPSC','NDA'],
     eligibility: '12th Pass (PCM for Air Force & Navy)',
     outcome: 'Officer in Indian Army, Navy, Air Force',
     pattern: 'Written + SSB Interview',
