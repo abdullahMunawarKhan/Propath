@@ -202,7 +202,7 @@ const Quiz = ({ user }) => {
               <button
                 key={index}
                 onClick={() => handleAnswer(option)}
-                className={`text-base sm:text-lg px-4 py-3 rounded-lg shadow-md transition-transform focus:outline-none focus:ring-2 focus:ring-indigo-500
+                className={`text-base sm:text-lg px-4 py-3 rounded-lg shadow-md transition-transform focus:outline-none 
                   ${isSelected
                     ? 'bg-blue-600 text-white hover:bg-blue-700'
                     : 'bg-white text-gray-900 hover:bg-pink-100'

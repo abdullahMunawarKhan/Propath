@@ -5,7 +5,7 @@ import { useChatbaseBot } from './utils/useChatbaseBot';
 
 const Result = () => {
   useChatbaseBot();
-  const [feedback, setFeedback] = useState(null);
+  const [feedback, setFeedback] = useState([]);
   const [iqScore, setIqScore] = useState(0);
   const [loading, setLoading] = useState(true);
   const [saveStatus, setSaveStatus] = useState('');
@@ -23,10 +23,10 @@ const Result = () => {
         return;
       }
 
-      // Fetch latest quiz results
+      // Fetch latest quiz results with 'feedback' JSON column
       const { data, error } = await supabase
         .from('quiz_results')
-        .select('result')
+        .select('feedback, iq_score')
         .eq('user_id', userId)
         .order('submitted_at', { ascending: false })
         .limit(1);
@@ -36,14 +36,12 @@ const Result = () => {
         setLoading(false);
       } else {
         const latest = data?.[0];
-        const result = latest?.result || [];
-
-        // Extract 'common' domain score for IQ calculation
-        const commonEntry = result.find(r => r.domain === 'common');
+        const resultFeedback = latest?.feedback || [];
+        const commonEntry = resultFeedback.find(r => r.domain === 'common');
         const commonScore = commonEntry ? commonEntry.score : 0;
-        setIqScore(commonScore);
 
-        setFeedback(result);
+        setIqScore(commonScore);
+        setFeedback(resultFeedback);
         setLoading(false);
       }
     };
@@ -55,17 +53,20 @@ const Result = () => {
     const { data: sessionData, error: sessionError } = await supabase.auth.getUser();
     const userId = sessionData?.user?.id;
 
-    if (!userId || sessionError || !feedback) {
+    if (!userId || sessionError || !feedback.length) {
       setSaveStatus('Failed to save result. Try again.');
       return;
     }
 
-    const { error } = await supabase.from('quiz_results').insert({
-      user_id: userId,
-      result: feedback,
-      iq_score: iqScore,
-      submitted_at: new Date(),
-    });
+    // Insert using the 'feedback' field as JSON, and iq_score as a separate column
+    const { error } = await supabase.from('quiz_results').insert([
+      {
+        user_id: userId,
+        feedback: feedback,
+        iq_score: iqScore,
+        submitted_at: new Date(),
+      },
+    ]);
 
     if (error) {
       console.error('Error saving result:', error.message);
@@ -129,7 +130,7 @@ const Result = () => {
           <>
             {renderIqMessage()}
 
-            {feedback && feedback.length > 0 ? (
+            {feedback.length > 0 ? (
               <ul className="space-y-4 sm:space-y-5">
                 {feedback
                   .filter(({ domain }) => domain !== 'common')
@@ -183,10 +184,7 @@ const Result = () => {
         </div>
 
         {saveStatus && (
-          <div
-            className="text-center mt-4 text-green-700 font-medium text-sm sm:text-base"
-            role="alert"
-          >
+          <div className="text-center mt-4 text-green-700 font-medium text-sm sm:text-base" role="alert">
             {saveStatus}
           </div>
         )}
