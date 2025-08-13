@@ -43,16 +43,17 @@ export const useChatbaseBot = () => {
 			document.body.appendChild(loader);
 		}
 
-		// Inject a small assistance pop message above the chatbot (once per session unless user closes)
-		const popId = 'chat-assist-pop';
-		const closedKey = 'chatAssistPopClosed';
-		const alreadyClosed = typeof window !== 'undefined' && window.localStorage?.getItem(closedKey) === 'true';
-		const exists = document.getElementById(popId);
+		// Assistance pop message (optional UI)
+		const setupAssistPop = () => {
+			const popId = 'chat-assist-pop';
+			const closedKey = 'chatAssistPopClosed';
+			const alreadyClosed = typeof window !== 'undefined' && window.localStorage?.getItem(closedKey) === 'true';
+			const exists = document.getElementById(popId);
 
-		if (!alreadyClosed && !exists) {
+			if (alreadyClosed || exists) return undefined;
+
 			const container = document.createElement('div');
 			container.id = popId;
-			// Position above typical bottom-right chat widget
 			container.style.position = 'fixed';
 			container.style.bottom = '110px';
 			container.style.right = '24px';
@@ -68,7 +69,6 @@ export const useChatbaseBot = () => {
 			container.style.alignItems = 'flex-start';
 			container.style.gap = '10px';
 
-			// Text
 			const text = document.createElement('div');
 			text.style.color = '#111827';
 			text.style.fontSize = '14px';
@@ -76,10 +76,9 @@ export const useChatbaseBot = () => {
 			text.style.fontWeight = '500';
 			text.textContent = 'Need assistance? I am here to assist.';
 
-			// Close button
 			const closeBtn = document.createElement('button');
 			closeBtn.setAttribute('aria-label', 'Close assistance message');
-			closeBtn.innerHTML = '&#x2715;';
+			closeBtn.innerHTML = '\u2715';
 			closeBtn.style.border = 'none';
 			closeBtn.style.background = 'transparent';
 			closeBtn.style.color = '#6B7280';
@@ -94,7 +93,6 @@ export const useChatbaseBot = () => {
 			});
 
 			container.addEventListener('click', () => {
-				// Attempt to open chat if API is available
 				try {
 					if (window.chatbase) {
 						window.chatbase('open');
@@ -105,7 +103,6 @@ export const useChatbaseBot = () => {
 			container.appendChild(text);
 			container.appendChild(closeBtn);
 
-			// Small pointer arrow
 			const arrow = document.createElement('div');
 			arrow.style.position = 'absolute';
 			arrow.style.bottom = '-6px';
@@ -118,12 +115,10 @@ export const useChatbaseBot = () => {
 			arrow.style.transform = 'rotate(45deg)';
 			container.appendChild(arrow);
 
-			// Mount after a short delay to avoid layout jank
 			const showTimer = setTimeout(() => {
 				document.body.appendChild(container);
 			}, 1200);
 
-			// Auto-hide after some time if not interacted with
 			const autoHideTimer = setTimeout(() => {
 				if (document.getElementById(popId)) {
 					container.remove();
@@ -136,6 +131,12 @@ export const useChatbaseBot = () => {
 				const mounted = document.getElementById(popId);
 				if (mounted) mounted.remove();
 			};
-		}
+		};
+
+		const cleanup = setupAssistPop();
+		return () => {
+			if (typeof cleanup === 'function') cleanup();
+		};
 	}, []);
 };
+
