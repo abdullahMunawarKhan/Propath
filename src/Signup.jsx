@@ -42,8 +42,11 @@ function Signup() {
         return setMessage({ text: error.message, type: 'error' });
       }
 
-      setMessage({ text: '✅ Account created! Redirecting...', type: 'success' });
-      setTimeout(() => navigate('/student-info'), 1500);
+      setMessage({ 
+        text: '✅ Account created! Please check your email to confirm your account before logging in. Redirecting...', 
+        type: 'success' 
+      });
+      setTimeout(() => navigate('/student-info'), 3000);
     } catch (error) {
       setMessage({ text: 'An unexpected error occurred. Please try again.', type: 'error' });
     } finally {
