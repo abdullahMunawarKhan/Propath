@@ -22,6 +22,12 @@ const UpdatePassword = () => {
         const accessToken = params.get('access_token');
         const refreshToken = params.get('refresh_token');
 
+        // Debug: Log the URL and tokens (remove in production)
+        console.log('Current URL:', window.location.href);
+        console.log('Hash:', hash);
+        console.log('Access token present:', !!accessToken);
+        console.log('Refresh token present:', !!refreshToken);
+
         if (!accessToken || !refreshToken) {
           setMessage('Invalid or missing token in URL. Please use the link from your email or request a new one.');
           setLoading(false);
