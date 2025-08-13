@@ -15,14 +15,22 @@ import Welcome from './Welcome';
 
 function App() {
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const getSession = async () => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-      setUser(session?.user || null);
+      try {
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+        setUser(session?.user || null);
+      } catch (error) {
+        console.error('Error getting session:', error);
+      } finally {
+        setLoading(false);
+      }
     };
+    
     getSession();
 
     const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -34,24 +42,80 @@ function App() {
     };
   }, []);
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-purple-600 mx-auto mb-4"></div>
+          <p className="text-gray-600 text-lg">Loading ProPath...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div
-      className="relative min-h-screen bg-cover bg-center"
-      style={{ backgroundImage: 'url("/background.png")' }}
-    >
-      <header className="w-full text-center py-4 bg-black bg-opacity-60 text-white text-2xl sm:text-3xl font-bold shadow-md sticky top-0 z-50">
-        ProPath - Your Career guider
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+      {/* Header */}
+      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200/50 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            <div className="flex items-center space-x-3">
+              <video
+                src="/logo.mp4"
+                autoPlay
+                loop
+                muted
+                playsInline
+                className="h-10 w-10 rounded-full shadow-md"
+                aria-label="ProPath Logo"
+              />
+              <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
+                ProPath
+              </h1>
+              <span className="hidden sm:inline text-sm text-gray-500 font-medium">
+                Your Career Guide
+              </span>
+            </div>
+            
+            {user && (
+              <div className="flex items-center space-x-4">
+                <span className="text-sm text-gray-600 hidden sm:block">
+                  Welcome, {user.email}
+                </span>
+                <button
+                  onClick={async () => {
+                    await supabase.auth.signOut();
+                    setUser(null);
+                  }}
+                  className="px-3 py-1.5 text-sm bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                >
+                  Logout
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
       </header>
 
-      <main className="flex justify-center items-center p-4 min-h-[calc(100vh-80px)]">
-        <div className="w-full max-w-xl sm:max-w-3xl md:max-w-4xl bg-white bg-opacity-90 rounded-lg shadow-lg p-4 sm:p-6 mx-2 sm:mx-auto">
+      {/* Main Content */}
+      <main className="flex-1">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <Routes>
-            <Route path="/" element={<Welcome />} /> {/* ✅ Welcome Route */}
+            <Route path="/" element={<Welcome />} />
             <Route path="/login" element={<Login setUser={setUser} />} />
             <Route path="/signup" element={<Signup />} />
-            <Route path="/student-info" element={user ? <StudentInfoForm user={user} /> : <Navigate to="/login" />} />
-            <Route path="/dashboard" element={user ? <Dashboard /> : <Navigate to="/login" />} />
-            <Route path="/quiz" element={user ? <Quiz user={user} /> : <Navigate to="/login" />} />
+            <Route 
+              path="/student-info" 
+              element={user ? <StudentInfoForm user={user} /> : <Navigate to="/login" />} 
+            />
+            <Route 
+              path="/dashboard" 
+              element={user ? <Dashboard /> : <Navigate to="/login" />} 
+            />
+            <Route 
+              path="/quiz" 
+              element={user ? <Quiz user={user} /> : <Navigate to="/login" />} 
+            />
             <Route path="/explore" element={<Explore />} />
             <Route path="/result" element={<Result />} />
             <Route path="/roadmaps" element={<Roadmaps />} />
@@ -60,6 +124,15 @@ function App() {
           </Routes>
         </div>
       </main>
+
+      {/* Footer */}
+      <footer className="bg-white/80 backdrop-blur-md border-t border-gray-200/50 mt-auto">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="text-center text-sm text-gray-500">
+            <p>&copy; 2024 ProPath. Empowering students to discover their career path.</p>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

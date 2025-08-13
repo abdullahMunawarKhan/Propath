@@ -13,6 +13,8 @@ function Login() {
   const [showForgotModal, setShowForgotModal] = useState(false);
   const [resetStatus, setResetStatus] = useState('');
   const [isSending, setIsSending] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  
   const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   const navigate = useNavigate();
 
@@ -20,27 +22,38 @@ function Login() {
     setErrorEmail('');
     setErrorPassword('');
     setLoginError('');
+    setIsLoading(true);
 
     if (!email) {
       setErrorEmail('Email is required.');
+      setIsLoading(false);
+      return;
     } else if (!isValidEmail(email)) {
       setErrorEmail('Please enter a valid email address.');
+      setIsLoading(false);
+      return;
     }
 
     if (!password) {
       setErrorPassword('Password is required.');
+      setIsLoading(false);
+      return;
     }
 
-    if (!email || !isValidEmail(email) || !password) return;
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-
-    if (error?.message === 'Invalid login credentials') {
-      setLoginError('Account not found, please sign up first.');
-    } else if (data?.user) {
-      navigate('/student-info');
-    } else if (error) {
-      setLoginError(error.message || 'Login failed.');
+      if (error?.message === 'Invalid login credentials') {
+        setLoginError('Account not found, please sign up first.');
+      } else if (data?.user) {
+        navigate('/student-info');
+      } else if (error) {
+        setLoginError(error.message || 'Login failed.');
+      }
+    } catch (error) {
+      setLoginError('An unexpected error occurred. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -60,27 +73,31 @@ function Login() {
       return;
     }
 
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/update-password`,
-    });
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/update-password`,
+      });
 
-    if (error) {
-      if (
-        error.message.toLowerCase().includes('user') ||
-        error.message.toLowerCase().includes('invalid')
-      ) {
-        setResetStatus('❌ Account not found with this email.');
+      if (error) {
+        if (
+          error.message.toLowerCase().includes('user') ||
+          error.message.toLowerCase().includes('invalid')
+        ) {
+          setResetStatus('❌ Account not found with this email.');
+        } else {
+          setResetStatus('❌ Failed to send reset email. Try again.');
+        }
       } else {
-        setResetStatus('❌ Failed to send reset email. Try again.');
+        setResetStatus('✅ Check your email to reset your password.');
       }
-    } else {
-      setResetStatus('✅ Check your email to reset your password.');
+    } catch (error) {
+      setResetStatus('❌ An unexpected error occurred. Please try again.');
+    } finally {
+      setIsSending(false);
     }
-
-    setIsSending(false);
   };
 
-  // 🕒 Auto-dismiss reset alert
+  // Auto-dismiss reset alert
   useEffect(() => {
     if (resetStatus) {
       const timer = setTimeout(() => setResetStatus(''), 4000);
@@ -89,147 +106,212 @@ function Login() {
   }, [resetStatus]);
 
   return (
-    <div className="relative min-h-screen flex flex-col items-center justify-center bg-gradient-to-tr from-[#8ec5fc] via-[#e0c3fc] to-[#f9f3f3] p-6 sm:p-8 mx-2 sm:mx-auto max-w-md sm:max-w-lg md:max-w-xl">
-      {/* Background animation */}
-      <div className="absolute top-10 left-10 w-20 h-20 bg-blue-500 rounded-xl shadow-2xl transform rotate-12 blur-sm animate-bounce-slow z-0"></div>
-      <div className="absolute bottom-10 right-10 w-24 h-24 bg-pink-400 rounded-full shadow-xl blur-md transform scale-110 animate-float z-0"></div>
-      <div className="absolute top-1/2 left-1/3 w-16 h-16 bg-yellow-300 rounded-full shadow-lg blur-sm animate-pulse z-0"></div>
-      <div className="absolute bottom-1/4 left-10 w-14 h-14 bg-purple-400 rounded-3xl rotate-45 shadow-md animate-spin-slow z-0"></div>
-
-      {/* Header */}
-      <div className="z-10 bg-white/40 backdrop-blur-md border border-white/30 rounded-2xl shadow-xl px-10 py-6 flex items-center space-x-8 mb-10">
-        <video
-          src="/logo.mp4"
-          autoPlay
-          loop
-          muted
-          playsInline
-          className="h-24 w-24 rounded-full shadow-lg"
-        />
-        <h1 className="text-5xl font-extrabold text-purple-800 tracking-wider">ProPath</h1>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 px-4 sm:px-6 lg:px-8 py-12">
+      {/* Background decorative elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-yellow-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
+        <div className="absolute top-40 left-40 w-80 h-80 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
       </div>
 
-      {/* Login Form */}
-      <div className="z-10 w-full max-w-full bg-white/30 backdrop-blur-xl border border-white/40 shadow-2xl rounded-3xl p-10 space-y-6">
-        <h2 className="text-2xl font-bold text-center text-gray-900">Log In</h2>
-
-        {/* Email */}
-        <div className="w-full">
-          <input
-            type="email"
-            placeholder="Email Address"
-            aria-label="Email Address"
-            className="w-full max-w-full px-4 py-3 rounded-full bg-white/70 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-          {errorEmail && <p className="text-red-500 text-sm mt-1">{errorEmail}</p>}
+      <div className="relative z-10 w-full max-w-md">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <div className="flex items-center justify-center space-x-3 mb-6">
+            <video
+              src="/logo.mp4"
+              autoPlay
+              loop
+              muted
+              playsInline
+              className="h-16 w-16 rounded-full shadow-lg"
+              aria-label="ProPath Logo"
+            />
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
+              ProPath
+            </h1>
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Welcome Back</h2>
+          <p className="text-gray-600">Sign in to continue your career journey</p>
         </div>
 
-        {/* Password */}
-        <div className="w-full relative">
-          <input
-            type={showPassword ? 'text' : 'password'}
-            placeholder="Password"
-            aria-label="Password"
-            className="w-full max-w-full px-4 py-3 rounded-full bg-white/70 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500 pr-12 transition"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-          <button
-            type="button"
-            className="absolute top-1/2 right-4 transform -translate-y-1/2 text-gray-600"
-            onClick={() => setShowPassword((prev) => !prev)}
-            aria-label={showPassword ? 'Hide password' : 'Show password'}
-          >
-            {showPassword ? <EyeSlashIcon className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
-          </button>
-          {errorPassword && <p className="text-red-500 text-sm mt-1">{errorPassword}</p>}
+        {/* Login Form */}
+        <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-8">
+          <form onSubmit={(e) => { e.preventDefault(); handleLogin(); }} className="space-y-6">
+            {/* Email */}
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                Email Address
+              </label>
+              <input
+                id="email"
+                type="email"
+                placeholder="Enter your email"
+                className="w-full px-4 py-3 rounded-xl bg-white/70 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                aria-describedby={errorEmail ? "email-error" : undefined}
+              />
+              {errorEmail && (
+                <p id="email-error" className="text-red-500 text-sm mt-1 flex items-center">
+                  <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
+                  {errorEmail}
+                </p>
+              )}
+            </div>
+
+            {/* Password */}
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+                Password
+              </label>
+              <div className="relative">
+                <input
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="Enter your password"
+                  className="w-full px-4 py-3 pr-12 rounded-xl bg-white/70 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  aria-describedby={errorPassword ? "password-error" : undefined}
+                />
+                <button
+                  type="button"
+                  className="absolute top-1/2 right-4 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showPassword ? <EyeSlashIcon className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
+                </button>
+              </div>
+              {errorPassword && (
+                <p id="password-error" className="text-red-500 text-sm mt-1 flex items-center">
+                  <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
+                  {errorPassword}
+                </p>
+              )}
+            </div>
+
+            {/* Error Message */}
+            {loginError && (
+              <div className="bg-red-50 border border-red-200 rounded-xl p-4">
+                <p className="text-red-600 text-sm flex items-center">
+                  <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
+                  {loginError}
+                </p>
+              </div>
+            )}
+
+            {/* Login Button */}
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-3 rounded-xl font-semibold hover:from-purple-700 hover:to-indigo-700 transform hover:scale-[1.02] transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+            >
+              {isLoading ? (
+                <div className="flex items-center justify-center">
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                  Signing In...
+                </div>
+              ) : (
+                'Sign In'
+              )}
+            </button>
+
+            {/* Forgot Password */}
+            <div className="text-center">
+              <button
+                type="button"
+                onClick={() => setShowForgotModal(true)}
+                className="text-sm text-purple-600 hover:text-purple-800 underline transition-colors"
+              >
+                Forgot Password?
+              </button>
+            </div>
+
+            {/* Sign Up */}
+            <div className="text-center pt-4 border-t border-gray-200">
+              <p className="text-sm text-gray-600">
+                Don't have an account?{' '}
+                <button
+                  type="button"
+                  onClick={() => navigate('/signup')}
+                  className="text-purple-600 hover:text-purple-800 font-medium underline transition-colors"
+                >
+                  Sign up here
+                </button>
+              </p>
+            </div>
+          </form>
         </div>
-
-        {/* Error Message */}
-        {loginError && <p className="text-red-600 text-sm text-center">{loginError}</p>}
-
-        {/* Login Button */}
-        <button
-          onClick={handleLogin}
-          className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-3 rounded-full font-semibold hover:scale-[1.02] transition shadow-lg"
-        >
-          Log In
-        </button>
-
-        {/* Forgot Password */}
-        <div className="text-center mt-2">
-          <button
-            onClick={() => setShowForgotModal(true)}
-            className="text-sm text-purple-700 underline hover:text-purple-900"
-          >
-            Forgot Password?
-          </button>
-        </div>
-
-        {/* Sign Up */}
-        <p className="text-sm text-center text-gray-700">
-          New user?{' '}
-          <span
-            onClick={() => navigate('/Signup')}
-            className="text-indigo-600 font-medium cursor-pointer underline"
-          >
-            Sign up here
-          </span>
-        </p>
       </div>
 
       {/* Forgot Password Modal */}
       {showForgotModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex justify-center items-center z-50">
-          <div className="bg-white p-6 rounded-xl shadow-lg w-full max-w-md relative">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md relative animate-fade-in-down">
             <button
               aria-label="Close reset password modal"
-              className="absolute top-2 right-4 text-gray-500 hover:text-red-500 text-2xl"
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
               onClick={() => {
                 setShowForgotModal(false);
                 setResetStatus('');
               }}
             >
-              &times;
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
             </button>
 
-            <h3 className="text-lg font-bold text-gray-800 mb-4">Reset Your Password</h3>
-            <p className="text-sm text-gray-600 mb-3">
-              Enter your registered email. A link to reset your password will be sent to your inbox.
-            </p>
+            <div className="p-6">
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Reset Your Password</h3>
+              <p className="text-gray-600 mb-6">
+                Enter your registered email. We'll send you a link to reset your password.
+              </p>
 
-            <input
-              type="email"
-              placeholder="Email address"
-              aria-label="Reset email address"
-              className="w-full px-4 py-2 mb-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
+              <div className="space-y-4">
+                <input
+                  type="email"
+                  placeholder="Enter your email address"
+                  className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
 
-            <button
-              onClick={handleResetPassword}
-              disabled={!email || isSending}
-              className={`w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition ${
-                !email || isSending ? 'opacity-50 cursor-not-allowed' : ''
-              }`}
-            >
-              {isSending ? 'Sending...' : 'Send Reset Link'}
-            </button>
+                <button
+                  onClick={handleResetPassword}
+                  disabled={!email || isSending}
+                  className="w-full bg-purple-600 text-white py-3 rounded-xl font-semibold hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isSending ? (
+                    <div className="flex items-center justify-center">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      Sending...
+                    </div>
+                  ) : (
+                    'Send Reset Link'
+                  )}
+                </button>
 
-            {resetStatus && (
-              <div
-                className={`mt-4 px-4 py-2 rounded-lg text-sm text-center animate-fade-in transition-all duration-300 ${
-                  resetStatus.startsWith('✅')
-                    ? 'bg-green-100 text-green-700 border border-green-300'
-                    : 'bg-red-100 text-red-700 border border-red-300'
-                }`}
-              >
-                {resetStatus}
+                {resetStatus && (
+                  <div
+                    className={`px-4 py-3 rounded-xl text-sm ${
+                      resetStatus.startsWith('✅')
+                        ? 'bg-green-50 text-green-700 border border-green-200'
+                        : 'bg-red-50 text-red-700 border border-red-200'
+                    }`}
+                  >
+                    {resetStatus}
+                  </div>
+                )}
               </div>
-            )}
+            </div>
           </div>
         </div>
       )}

@@ -74,103 +74,168 @@ const Explore = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-100 font-[LilitaOne] text-[#0D0D0D]">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
       {/* Header */}
-      <header className="bg-gradient-to-r from-[#2c3e50] to-[#34495e] text-white py-10 px-6 sm:px-12 text-center shadow-xl relative">
-        <button
-          onClick={() => navigate('/dashboard')}
-          className="absolute top-5 left-6 sm:left-12 bg-[#34495e] hover:bg-[#2c3e50] text-white px-4 py-2 rounded-full shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white transition"
-          aria-label="Back to Dashboard"
-        >
-          ← Back to Dashboard
-        </button>
-        <h1 className="text-3xl sm:text-5xl font-extrabold mb-3 tracking-wide max-w-4xl mx-auto">
-          Career Path Explorer
-        </h1>
-        <p className="text-lg sm:text-2xl mb-6 max-w-3xl mx-auto">
-          Discover diverse career opportunities after 10th grade
-        </p>
-        <div className="relative max-w-xl mx-auto">
-          <input
-            type="text"
-            placeholder="Search careers..."
-            className="w-full px-5 sm:px-6 py-3 rounded-full text-gray-800 focus:outline-none focus:ring-4 focus:ring-indigo-500 shadow-lg text-base sm:text-lg"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-          <button
-            className="absolute right-3 top-1/2 transform -translate-y-1/2 bg-indigo-600 hover:bg-indigo-800 text-white px-5 py-2 rounded-full shadow-lg text-base sm:text-lg font-semibold transition focus:outline-none focus:ring-4 focus:ring-indigo-400"
-            onClick={handleSearch}
-            aria-label="Search Careers"
-          >
-            Search
-          </button>
+      <div className="bg-white/80 backdrop-blur-sm border-b border-gray-200/50 sticky top-0 z-40">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="flex items-center space-x-4">
+              <button
+                onClick={() => navigate('/dashboard')}
+                className="inline-flex items-center px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+                aria-label="Back to Dashboard"
+              >
+                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+                Back
+              </button>
+              <div>
+                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Career Explorer</h1>
+                <p className="text-gray-600 text-sm sm:text-base">Discover diverse career opportunities after 10th grade</p>
+              </div>
+            </div>
+            
+            {/* Search Bar */}
+            <div className="relative max-w-md w-full">
+              <input
+                type="text"
+                placeholder="Search careers..."
+                className="w-full px-4 py-2 pl-10 pr-12 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white/70 backdrop-blur-sm"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+              <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              <button
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded-lg text-sm font-medium transition-colors"
+                onClick={handleSearch}
+                aria-label="Search Careers"
+              >
+                Search
+              </button>
+            </div>
+          </div>
         </div>
-      </header>
+      </div>
 
       {/* Main Content */}
-      <main className="px-6 sm:px-12 py-12 max-w-[1200px] mx-auto">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Categories */}
-        <div className="flex flex-wrap justify-center gap-4 mb-12 overflow-x-auto scrollbar-thin scrollbar-thumb-gray-400 px-1 sm:px-0">
-          {categories.map(({ label, value }) => (
-            <button
-              key={value}
-              onClick={() => handleFilter(value)}
-              className={`whitespace-nowrap text-sm sm:text-base px-6 py-2 rounded-full font-medium transition shadow-sm border-2 ${
-                activeCategory === value
-                  ? 'bg-[#34495e] text-white scale-105 shadow-lg'
-                  : 'bg-white text-[#34495e] hover:scale-105 hover:bg-[#ecf0f1]'
-              }`}
-              aria-pressed={activeCategory === value}
-            >
-              {label}
-            </button>
-          ))}
+        <div className="mb-8">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">Filter by Category</h2>
+          <div className="flex flex-wrap gap-3 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+            {categories.map(({ label, value }) => (
+              <button
+                key={value}
+                onClick={() => handleFilter(value)}
+                className={`whitespace-nowrap px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 ${
+                  activeCategory === value
+                    ? 'bg-purple-600 text-white shadow-lg scale-105'
+                    : 'bg-white/70 text-gray-700 hover:bg-white hover:shadow-md hover:scale-105 border border-gray-200'
+                }`}
+                aria-pressed={activeCategory === value}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Results Count */}
+        <div className="mb-6">
+          <p className="text-gray-600">
+            Showing {filteredCareers.length} career{filteredCareers.length !== 1 ? 's' : ''}
+            {searchTerm && ` for "${searchTerm}"`}
+          </p>
         </div>
 
         {/* Career Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredCareers.map((career) => (
             <div
               key={career.id}
-              className="card relative h-[420px] perspective transition-all duration-300 hover:shadow-2xl rounded-lg"
+              className="group bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg hover:shadow-xl border border-white/20 overflow-hidden transition-all duration-300 hover:scale-105"
             >
-              <div className="card-inner w-full h-full transition-transform duration-500 transform-style-preserve-3d hover:rotate-y-180 rounded-lg">
-                {/* Front */}
-                <div className="card-front absolute w-full h-full backface-hidden rounded-lg overflow-hidden bg-white shadow-md">
-                  <img
-                    src={career.image}
-                    alt={career.alt}
-                    className="w-full h-full object-cover rounded-lg"
-                    loading="lazy"
-                  />
-                  <div className="absolute bottom-0 left-0 right-0 bg-[#34495ecc] text-white text-center py-3 font-semibold text-lg sm:text-xl rounded-b-lg">
-                    {career.title}
-                  </div>
-                </div>
-                {/* Back */}
-                <div className="card-back absolute w-full h-full backface-hidden rounded-lg bg-white shadow-md p-6 transform rotate-y-180 flex flex-col justify-between overflow-y-auto max-h-[420px]">
-                  <div>
-                    <h3 className="text-lg sm:text-2xl font-bold mb-4 text-[#2c3e50]">{career.title}</h3>
-                    <p className="mb-4 text-gray-700 text-base sm:text-lg">{career.description}</p>
-                    <div className="bg-gray-100 p-3 rounded mb-3">
-                      <h4 className="font-semibold text-[#3B4E59] mb-1">Tech Trend:</h4>
-                      <p className="text-sm">{career.trend}</p>
-                    </div>
-                    <div className="bg-gray-100 p-3 rounded">
-                      <h4 className="font-semibold text-[#3B4E59] mb-1">Growth:</h4>
-                      <p className="text-sm">{career.booming}</p>
-                    </div>
-                  </div>
-                  <span className="inline-block mt-4 px-4 py-1 text-sm rounded-full bg-[#A6A6A6] text-white self-start">
+              {/* Card Image */}
+              <div className="relative h-48 overflow-hidden">
+                <img
+                  src={career.image}
+                  alt={career.alt}
+                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                  loading="lazy"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+                <div className="absolute bottom-4 left-4 right-4">
+                  <h3 className="text-lg font-bold text-white mb-1">{career.title}</h3>
+                  <span className="inline-block px-2 py-1 bg-white/20 backdrop-blur-sm text-white text-xs rounded-lg">
                     {career.category.replace('-', ' ').replace(/\b\w/g, (l) => l.toUpperCase())}
                   </span>
                 </div>
               </div>
+
+              {/* Card Content */}
+              <div className="p-6">
+                <p className="text-gray-700 text-sm mb-4 line-clamp-3">{career.description}</p>
+                
+                <div className="space-y-3">
+                  <div className="bg-blue-50 rounded-xl p-3">
+                    <h4 className="font-semibold text-blue-800 text-sm mb-1 flex items-center">
+                      <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                      </svg>
+                      Tech Trend
+                    </h4>
+                    <p className="text-blue-700 text-xs">{career.trend}</p>
+                  </div>
+                  
+                  <div className="bg-green-50 rounded-xl p-3">
+                    <h4 className="font-semibold text-green-800 text-sm mb-1 flex items-center">
+                      <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                      </svg>
+                      Growth
+                    </h4>
+                    <p className="text-green-700 text-xs">{career.booming}</p>
+                  </div>
+                </div>
+
+                <button className="w-full mt-4 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-sm font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2">
+                  Learn More
+                </button>
+              </div>
             </div>
           ))}
         </div>
-      </main>
+
+        {/* Empty State */}
+        {filteredCareers.length === 0 && (
+          <div className="text-center py-12">
+            <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No careers found</h3>
+            <p className="text-gray-600">
+              {searchTerm 
+                ? `No careers match your search for "${searchTerm}". Try different keywords or browse all categories.`
+                : 'No careers available in this category. Please try another category.'
+              }
+            </p>
+            {searchTerm && (
+              <button
+                onClick={() => {
+                  setSearchTerm('');
+                  setActiveCategory('all');
+                }}
+                className="mt-4 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-sm font-medium transition-colors"
+              >
+                Clear Search
+              </button>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 };

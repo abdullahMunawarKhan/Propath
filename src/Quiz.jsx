@@ -113,30 +113,28 @@ const Quiz = ({ user }) => {
       message: 'IQ Section'
     });
 
-    // Insert quiz result
-    const { error } = await supabase.from('quiz_results').insert([
-      {
-        user_id: user.id,
-        result: feedback,
-        submitted_at: new Date(),
-      },
-    ]);
+    try {
+      // Insert quiz result into quiz_results with expected columns
+      const { error } = await supabase.from('quiz_results').insert([
+        {
+          user_id: user.id,
+          feedback: feedback, // JSON column
+          iq_score: iqScore,  // numeric column
+          submitted_at: new Date(),
+        },
+      ]);
 
-    // Insert IQ score separately into a dedicated table
-    const { error: iqError } = await supabase.from('iq_results').insert([
-      {
-        user_id: user.id,
-        iq_score: iqScore,
-        submitted_at: new Date(),
-      },
-    ]);
+      if (error) {
+        console.error('Insert quiz_results failed:', error);
+        alert('Failed to submit quiz results. Please try again.');
+        return;
+      }
 
-    if (error || iqError) {
+      navigate('/result');
+    } catch (e) {
+      console.error('Unexpected submit error:', e);
       alert('Failed to submit quiz results. Please try again.');
-      return;
     }
-
-    navigate('/result');
   };
 
   if (filteredQuestions.length === 0) {
