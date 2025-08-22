@@ -1,49 +1,162 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useChatbaseBot } from './utils/useChatbaseBot';
+import { useChatbaseBot } from './utils/useChatbaseBot';// adjust import if needed
 import { supabase } from './utils/supabase';
 import { generateSyntheticCareers } from './utils/generateCareers';
 
-const careersData = [
+// Local images mapped per domain with arrays of image paths
+const domainImages = {
+  'digital-creator': [
+    '/images/digital-creator1.jpeg',
+    '/images/digital-creator2.jpg',
+    '/images/digital-creator3.jpg',
+    '/images/digital-creator4.png',
+    '/images/digital-creator5.png',
+    '/images/digital-creator6.png',
+  ],
+  media: [
+    '/images/media1.png',
+    '/images/media2.png',
+    '/images/media3.png',
+    '/images/media4.png',
+    '/images/media5.png',
+    '/images/media6.png',
+  ],
+  event: [
+    '/images/event1.png',
+    '/images/event2.png',
+    '/images/event3.png',
+    '/images/event4.png',
+    '/images/event5.png',
+    '/images/event6.png',
+  ],
+  sports: [
+    '/images/sports1.png',
+    '/images/sports2.png',
+    '/images/sports3.png',
+    '/images/sports4.png',
+    '/images/sports5.png',
+    '/images/sports6.png',
+  ],
+  fashion: [
+    '/images/fashion1.png',
+    '/images/fashion2.png',
+    '/images/fashion3.png',
+    '/images/fashion4.png',
+    '/images/fashion5.png',
+    '/images/fashion6.png',
+  ],
+  culinary: [
+    '/images/culinary1.png',
+    '/images/culinary2.png',
+    '/images/culinary3.png',
+    '/images/culinary4.png',
+
+  ],
+  travel: [
+    '/images/travel1.jpg',
+    '/images/travel2.png',
+    '/images/travel3.png',
+    '/images/travel4.png',
+    '/images/travel5.png',
+    
+  ],
+  marketing: [
+    '/images/marketing1.png',
+    '/images/marketing2.png',
+    '/images/marketing3.png',
+    '/images/marketing4.jpg',
+
+  ],
+  finance: [
+    '/images/finance1.jpg',
+    '/images/finance2.png',
+    '/images/finance3.png',
+    '/images/finance4.png',
+    '/images/finance5.png',
+  ],
+  psychology: [
+    '/images/psychology.jpg',
+    
+  ],
+  art: [
+    '/images/art1.png',
+    '/images/art2.png',
+    '/images/art3.png',
+
+  ],
+  entrepreneurship: [
+    '/images/entrepreneurship1.png',
+    '/images/entrepreneurship2.png',
+    '/images/entrepreneurship3.png',
+ 
+  ],
+};
+
+// Utility to cycle through domain images per career ID
+const pickImage = (arr, id) => arr[id % arr.length] || '/images/placeholder.jpg';
+
+// Static careers to start with
+const careersStatic = [
   {
     id: 1,
-    title: "Digital Creator Economy",
-    description: "Content creators, influencers, and digital educators building audiences on YouTube, Instagram, or podcasts.",
-    category: "digital-creator",
-    trend: "AI-driven content creation (using AI tools like Midjourney, ChatGPT for content ideas and video scripting).",
-    booming: "Expected 20% yearly growth with 100+ billion dollar market value.",
-    image: "../images/digital-creator1-ae338247.jpeg",
-    alt: "Content creator recording a video",
+    title: 'Digital Creator Economy',
+    description:
+      'Content creators, influencers, and digital educators building audiences on YouTube, Instagram, or podcasts.',
+    category: 'digital-creator',
+    trend: 'AI tools and video editing software transforming content creation.',
+    booming: 'Projected 20% growth over the next 10 years.',
+    alt: 'Digital Creator',
   },
   {
     id: 2,
-    title: "Creative Media & Entertainment",
-    description: "Careers in filmmaking, OTT content writing, music production, or digital storytelling.",
-    category: "media",
-    trend: "Virtual production (like Unreal Engine), AI-based video editing, and deepfake technologies revolutionizing media.",
-    booming: "Global entertainment market expected to reach $3 trillion by 2030.",
-    image: "../images/entertainment-about-us-page-header.jpg",
-    alt: "Filmmaker directing a scene",
+    title: 'Creative Media',
+    description:
+      'Careers in filmmaking, writing, and media production.',
+    category: 'media',
+    trend: 'Virtual production and streaming platforms expanding opportunities.',
+    booming: 'Global entertainment market growing rapidly.',
+    alt: 'Media',
   },
+];
+
+// Categories list as before
+
+const categories = [
+  { label: 'All', value: 'all' },
+  { label: 'Digital Creator Economy', value: 'digital-creator' },
+  { label: 'Creative Media', value: 'media' },
+  { label: 'Event Management', value: 'event' },
+  { label: 'Sports Careers', value: 'sports' },
+  { label: 'Fashion Industry', value: 'fashion' },
+  { label: 'Culinary Arts', value: 'culinary' },
+  { label: 'Travel', value: 'travel' },
+  { label: 'Marketing', value: 'marketing' },
+  { label: 'Finance', value: 'finance' },
+  { label: 'Psychology', value: 'psychology' },
+  { label: 'Art', value: 'art' },
+  { label: 'Entrepreneurship', value: 'entrepreneurship' },
 ];
 
 const Explore = () => {
   const navigate = useNavigate();
   useChatbaseBot();
 
-  const [allCareers, setAllCareers] = useState(careersData);
-  const [filteredCareers, setFilteredCareers] = useState(careersData);
+  const [allCareers, setAllCareers] = useState(careersStatic);
+  const [filteredCareers, setFilteredCareers] = useState(careersStatic);
   const [activeCategory, setActiveCategory] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [aiLoaded, setAiLoaded] = useState(false);
-  const [visibleCount, setVisibleCount] = useState(18); // incremental pagination
+  const [visibleCount, setVisibleCount] = useState(18);
+  const [showChatHighlight, setShowChatHighlight] = useState(false);
+
 
   const handleFilter = (category) => {
     setActiveCategory(category);
     if (category === 'all') {
       setFilteredCareers(allCareers);
     } else {
-      setFilteredCareers(allCareers.filter((career) => career.category === category));
+      setFilteredCareers(allCareers.filter((c) => c.category === category));
     }
     setVisibleCount(18);
   };
@@ -52,9 +165,9 @@ const Explore = () => {
     if (!searchTerm) return handleFilter(activeCategory);
     const lower = searchTerm.toLowerCase();
     setFilteredCareers(
-      allCareers.filter((career) =>
-        career.title.toLowerCase().includes(lower) ||
-        career.description.toLowerCase().includes(lower)
+      allCareers.filter(
+        (career) =>
+          career.title.toLowerCase().includes(lower) || career.description.toLowerCase().includes(lower)
       )
     );
     setVisibleCount(18);
@@ -64,308 +177,234 @@ const Explore = () => {
     handleSearch();
   }, [searchTerm]);
 
-  const categories = [
-    { label: 'All', value: 'all' },
-    { label: 'Digital Creator Economy', value: 'digital-creator' },
-    { label: 'Creative Media & Entertainment', value: 'media' },
-    { label: 'Event & Experience Management', value: 'event' },
-    { label: 'Sports & Fitness Careers', value: 'sports' },
-    { label: 'Fashion & Luxury Industry', value: 'fashion' },
-    { label: 'Culinary Arts & Food Innovation', value: 'culinary' },
-    { label: 'Travel & Tourism Careers', value: 'travel' },
-    { label: 'Digital Marketing & Branding', value: 'marketing' },
-    { label: 'Finance & Investments', value: 'finance' },
-    { label: 'Psychology & Coaching', value: 'psychology' },
-    { label: 'Art, Design & Creativity', value: 'art' },
-    { label: 'Entrepreneurship & Startups', value: 'entrepreneurship' },
-  ];
-
-  // Memoized currently visible slice for performance
-  const visibleCareers = useMemo(() => filteredCareers.slice(0, visibleCount), [filteredCareers, visibleCount]);
-
   const loadAiCareers = () => {
     if (aiLoaded) return;
     const generated = generateSyntheticCareers(1000, 1000);
-    const merged = [...careersData, ...generated];
-    setAllCareers(merged);
-    // Re-apply current filter/search on the new dataset
+    const combined = [...careersStatic, ...generated];
+    setAllCareers(combined);
     setAiLoaded(true);
     if (activeCategory !== 'all') {
-      setFilteredCareers(merged.filter(c => c.category === activeCategory));
+      setFilteredCareers(combined.filter((c) => c.category === activeCategory));
     } else if (searchTerm) {
       const lower = searchTerm.toLowerCase();
-      setFilteredCareers(merged.filter(c => c.title.toLowerCase().includes(lower) || c.description.toLowerCase().includes(lower)));
+      setFilteredCareers(combined.filter((c) => c.title.toLowerCase().includes(lower) || c.description.toLowerCase().includes(lower)));
     } else {
-      setFilteredCareers(merged);
+      setFilteredCareers(combined);
     }
     setVisibleCount(30);
   };
 
-  // Auto-load AI careers and default to "My Selected Domains" on first visit
-  useEffect(() => {
-    const init = async () => {
-      loadAiCareers();
-      await filterByMySelectedDomains();
-    };
-    init();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  // Domain mapping and user domain filter as before...
 
-  // Map student info domains to Explore categories
   const studentDomainToCategory = (d) => {
     const map = {
-      'Creative Media & Entertainment': 'media',
-      'Sports & Fitness Career': 'sports',
-      'Sports & Fitness Careers': 'sports',
-      'Fashion & Luxury Industry': 'fashion',
-      'Culinary Arts & Food Innovation': 'culinary',
-      'Art, Design & Creativity': 'art',
-      'Financial Analyst': 'finance',
-      'CA': 'finance',
-      'Bank Manager': 'finance',
-      'Digital Marketing & Branding': 'marketing',
-      'Aviation': 'travel',
-      'Teacher': 'psychology',
-      'Medical': 'psychology',
-      'Engineering': 'entrepreneurship',
-      'UPSC': 'media',
-      'Political Advisor': 'media',
-      'Army': 'sports',
-      'Police': 'sports',
-      'Entrepreneurship & Startups': 'entrepreneurship',
+      'Digital Creator Economy': 'digital-creator',
+      'Creative Media': 'media',
+      'Event Management': 'event',
+      'Sports Careers': 'sports',
+      'Fashion Industry': 'fashion',
+      'Culinary Arts': 'culinary',
+      'Travel': 'travel',
+      'Marketing': 'marketing',
+      'Finance': 'finance',
+      'Psychology': 'psychology',
+      'Art': 'art',
+      'Entrepreneurship': 'entrepreneurship',
+      // Add your own mappings...
     };
     return map[d];
   };
 
-  const filterByMySelectedDomains = async () => {
+  const filterByUserDomains = async () => {
     try {
-      // Ensure big dataset is present
       if (!aiLoaded) loadAiCareers();
-
-      const { data: auth } = await supabase.auth.getUser();
-      const userId = auth?.user?.id;
-      if (!userId) {
-        alert('Please log in to view your selected domains.');
+      const userData = await supabase.auth.getUser();
+      if (!userData.data?.user) {
+        alert('Please login to view your domains');
         return;
       }
-      const { data, error } = await supabase.from('students').select('domain').eq('user_id', userId).single();
-      if (error) {
-        console.error('Failed to load your domains:', error.message);
-        return;
-      }
-      const domains = data?.domain || [];
-      const mappedCats = new Set(domains.map(studentDomainToCategory).filter(Boolean));
-      if (mappedCats.size === 0) {
-        // Fallback: show general skill areas if we cannot map
-        setFilteredCareers(allCareers.filter(c => ['marketing','entrepreneurship','art','media'].includes(c.category)));
+      const { data: studentData, error } = await supabase
+        .from('students')
+        .select('domain')
+        .eq('user_id', userData.data.user.id)
+        .single();
+      if (error) throw error;
+      const mapped = new Set(studentData.domain.map(studentDomainToCategory).filter(Boolean));
+      if (mapped.size === 0) {
+        setFilteredCareers(allCareers.filter((c) => ['digital-creator', 'media', 'entrepreneurship', 'art'].includes(c.category)));
       } else {
-        setFilteredCareers(allCareers.filter(c => mappedCats.has(c.category)));
+        setFilteredCareers(allCareers.filter((c) => mapped.has(c.category)));
       }
       setActiveCategory('my');
       setVisibleCount(24);
-    } catch (e) {
-      console.error('Unexpected error fetching selected domains:', e);
+    } catch (err) {
+      console.error(err);
     }
   };
 
+  useEffect(() => {
+    filterByUserDomains();
+  }, []);
+
+  const visibleCareers = useMemo(() => filteredCareers.slice(0, visibleCount), [filteredCareers, visibleCount]);
+
+  const handleLearnMore = (career) => {
+    if (window.chatbase) {
+      window.chatbase('open');
+      setShowChatHighlight(true);
+
+    // Hide the highlight after 4 seconds
+      setTimeout(() => {
+        setShowChatHighlight(false);
+      }, 4000);
+    } else {
+      alert('Chatbot not loaded');
+    }
+  };
+
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-700">
       {/* Header */}
-      <div className="bg-white/80 backdrop-blur-sm border-b border-gray-200/50 sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div className="flex items-center space-x-4">
-              <button
-                onClick={() => navigate('/dashboard')}
-                className="inline-flex items-center px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
-                aria-label="Back to Dashboard"
-              >
-                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                </svg>
-                Back
-              </button>
-              <div>
-                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Career Explorer</h1>
-                <p className="text-gray-600 text-sm sm:text-base">Discover diverse career opportunities after 10th grade</p>
-              </div>
-            </div>
-            
-            {/* Search Bar */}
-            <div className="relative max-w-md w-full">
-              <input
-                type="text"
-                placeholder="Search careers..."
-                className="w-full px-4 py-2 pl-10 pr-12 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white/70 backdrop-blur-sm"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-              <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-              <button
-                className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded-lg text-sm font-medium transition-colors"
-                onClick={handleSearch}
-                aria-label="Search Careers"
-              >
-                Search
-              </button>
-            </div>
+      <div className="sticky top-0 z-30 bg-white border-b border-gray-200 backdrop-blur flex flex-wrap items-center justify-between px-6 py-4 gap-4">
+        <button onClick={() => navigate('/dashboard')} className="inline-flex items-center gap-2 rounded-lg bg-gray-100 px-3 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-200">
+          <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+          </svg>
+          Back
+        </button>
+        <div className="grow text-center md:text-left">
+          <h1 className="text-3xl font-bold text-gray-900">Career Explorer</h1>
+          <p className="mt-1 text-lg text-gray-700">Discover diverse career opportunities</p>
+        </div>
+        <div className="relative w-full max-w-md">
+          <input
+            type="search"
+            placeholder="Search careers..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full rounded border border-gray-300 px-4 py-2 text-gray-700 focus:ring-indigo-500 focus:outline-none"
+          />
+          <div className="absolute left-3 top-2.5 text-gray-400">
+            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"  />
+            </svg>
           </div>
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Categories */}
-        <div className="mb-8">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Filter by Category</h2>
-          <div className="flex flex-wrap gap-3 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+      {/* Category tags: wrap not scroll */}
+      <div className="bg-white border-b border-gray-200 sticky top-20 z-20 px-6 py-3">
+        <div className="flex flex-wrap gap-2">
+          <button
+            onClick={filterByUserDomains}
+            className={`rounded border px-3 py-1 text-sm font-semibold transition-colors ${
+              activeCategory === 'my' ? 'bg-indigo-600 text-white' : 'border-indigo-600 text-indigo-700'
+            }`}
+            aria-pressed={activeCategory === 'my'}
+          >My Domains</button>
+          {categories.map((cat) => (
             <button
-              onClick={filterByMySelectedDomains}
-              className={`whitespace-nowrap px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 ${
-                activeCategory === 'my'
-                  ? 'bg-purple-600 text-white shadow-lg scale-105'
-                  : 'bg-white/70 text-gray-700 hover:bg-white hover:shadow-md hover:scale-105 border border-gray-200'
+              key={cat.value}
+              onClick={() => handleFilter(cat.value)}
+              className={`rounded border px-3 py-1 text-sm font-semibold transition-colors ${
+                activeCategory === cat.value ? 'bg-indigo-600 text-white' : 'border-indigo-600 text-indigo-700'
               }`}
-              aria-pressed={activeCategory === 'my'}
-            >
-              My Selected Domains
-            </button>
-            {categories.map(({ label, value }) => (
-              <button
-                key={value}
-                onClick={() => handleFilter(value)}
-                className={`whitespace-nowrap px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 ${
-                  activeCategory === value
-                    ? 'bg-purple-600 text-white shadow-lg scale-105'
-                    : 'bg-white/70 text-gray-700 hover:bg-white hover:shadow-md hover:scale-105 border border-gray-200'
-                }`}
-                aria-pressed={activeCategory === value}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Results Header */}
-        <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-          <p className="text-gray-600">
-            Showing {filteredCareers.length} career{filteredCareers.length !== 1 ? 's' : ''}
-            {searchTerm && ` for "${searchTerm}"`}
-          </p>
-          <div className="flex items-center gap-3">
-            <button
-              onClick={loadAiCareers}
-              disabled={aiLoaded}
-              className={`inline-flex items-center px-4 py-2 rounded-xl text-sm font-medium transition-colors ${
-                aiLoaded ? 'bg-gray-200 text-gray-500 cursor-not-allowed' : 'bg-purple-600 hover:bg-purple-700 text-white'
-              }`}
-              title="Generate 1000 student-friendly career ideas"
-            >
-              {aiLoaded ? 'AI Careers Loaded' : 'Load AI Careers (1000)'}
-            </button>
-          </div>
-        </div>
-
-        {/* Career Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {visibleCareers.map((career) => (
-            <div
-              key={career.id}
-              className="group bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg hover:shadow-xl border border-white/20 overflow-hidden transition-all duration-300 hover:scale-105"
-            >
-              {/* Card Image */}
-              <div className="relative h-48 overflow-hidden">
-                <img
-                  src={career.image}
-                  alt={career.alt}
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                  loading="lazy"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
-                <div className="absolute bottom-4 left-4 right-4">
-                  <h3 className="text-lg font-bold text-white mb-1">{career.title}</h3>
-                  <span className="inline-block px-2 py-1 bg-white/20 backdrop-blur-sm text-white text-xs rounded-lg">
-                    {career.category.replace('-', ' ').replace(/\b\w/g, (l) => l.toUpperCase())}
-                  </span>
-                </div>
-              </div>
-
-              {/* Card Content */}
-              <div className="p-6">
-                <p className="text-gray-700 text-sm mb-4 line-clamp-3">{career.description}</p>
-                
-                <div className="space-y-3">
-                  <div className="bg-blue-50 rounded-xl p-3">
-                    <h4 className="font-semibold text-blue-800 text-sm mb-1 flex items-center">
-                      <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                      </svg>
-                      Tech Trend
-                    </h4>
-                    <p className="text-blue-700 text-xs">{career.trend}</p>
-                  </div>
-                  
-                  <div className="bg-green-50 rounded-xl p-3">
-                    <h4 className="font-semibold text-green-800 text-sm mb-1 flex items-center">
-                      <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                      </svg>
-                      Growth
-                    </h4>
-                    <p className="text-green-700 text-xs">{career.booming}</p>
-                  </div>
-                </div>
-
-                <button className="w-full mt-4 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-sm font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2">
-                  Learn More
-                </button>
-              </div>
-            </div>
+              aria-pressed={activeCategory === cat.value}
+            >{cat.label}</button>
           ))}
         </div>
+      </div>
 
-        {/* Load more */}
-        {visibleCount < filteredCareers.length && (
-          <div className="flex justify-center mt-8">
+      {/* Results / Careers */}
+      <main className="max-w-7xl mx-auto p-6">
+        <div className="flex items-center justify-between mb-6">
+          <p className="text-gray-700">
+            Showing {filteredCareers.length} career{filteredCareers.length !== 1 ? 's' : ''} {searchTerm && <span>for <span className="font-semibold">{searchTerm}</span></span>}
+          </p>
+          <button
+            onClick={loadAiCareers}
+            disabled={aiLoaded}
+            className={`rounded border px-4 py-2 text-sm font-semibold transition-colors ${
+              aiLoaded ? 'bg-gray-300 text-gray-600 cursor-not-allowed' : 'bg-indigo-600 text-white hover:bg-indigo-700'
+            }`}
+          >{aiLoaded ? 'AI Careers Loaded' : 'Load AI Careers'}</button>
+        </div>
+
+        <section className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
+          {visibleCareers.map((career) => (
+            <article key={career.id} className="rounded bg-white shadow hover:shadow-md transition p-4">
+              <div className="w-full h-[200px] overflow-hidden rounded-t">
+                <img
+                  src={pickImage(domainImages[career.category], career.id)}
+                  alt={career.alt}
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </div>
+  
+              <div className="mt-3">
+                <h2 className="text-lg font-semibold text-gray-900 truncate">{career.title}</h2>
+                  <span className="inline-block text-sm text-indigo-600 font-medium mt-1">
+                    {career.category.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
+                  </span>
+              </div>
+  
+              <p className="mt-2 text-gray-700 line-clamp-3">{career.description}</p>
+  
+              <div className="grid gap-2 mt-3">
+                <div className="bg-blue-50 p-2 rounded text-blue-800 text-sm">
+                  <strong>Tech Trend: </strong>{career.trend}
+                </div>
+                <div className="bg-green-50 p-2 rounded text-green-800 text-sm">
+                  <strong>Growth: </strong>{career.booming}
+                </div>
+              </div>
+              <button
+                onClick={() => handleLearnMore(career)}
+                className="mt-4 w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded transition"
+              >
+                Learn More
+              </button>
+  
+            </article>
+          ))}
+        </section>
+
+        {(visibleCareers.length < filteredCareers.length) && (
+          <div className="flex justify-center my-10">
             <button
-              onClick={() => setVisibleCount((c) => c + 24)}
-              className="px-6 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-800 text-sm font-medium"
+              onClick={() => setVisibleCount((count) => count + 24)}
+              className="rounded border border-indigo-500 px-6 py-2 font-semibold text-indigo-700 hover:bg-indigo-100"
             >
-              Load more
+              Load More
             </button>
           </div>
         )}
 
-        {/* Empty State */}
         {filteredCareers.length === 0 && (
-          <div className="text-center py-12">
-            <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No careers found</h3>
-            <p className="text-gray-600">
-              {searchTerm 
-                ? `No careers match your search for "${searchTerm}". Try different keywords or browse all categories.`
-                : 'No careers available in this category. Please try another category.'
-              }
-            </p>
-            {searchTerm && (
-              <button
-                onClick={() => {
-                  setSearchTerm('');
-                  setActiveCategory('all');
-                }}
-                className="mt-4 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-sm font-medium transition-colors"
-              >
-                Clear Search
-              </button>
-            )}
+          <section className="mt-20 max-w-lg mx-auto text-center text-gray-600">
+            <p>No careers found{searchTerm ? ` for "${searchTerm}"` : ''}.</p>
+            <button
+              onClick={() => {
+                setSearchTerm('');
+                setActiveCategory('all');
+              }}
+              className="mt-6 rounded bg-indigo-600 py-2 px-6 font-semibold text-white hover:bg-indigo-700"
+            >
+              Clear Search
+            </button>
+          </section>
+        )}
+        {showChatHighlight && (
+          <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
+            <div className="bg-indigo-700 text-white text-lg font-semibold px-6 py-4 rounded shadow-lg opacity-90">
+              Enter domain name in chatbot to start your search
+            </div>
           </div>
         )}
-      </div>
+
+      </main>
     </div>
   );
 };

@@ -1,5 +1,4 @@
-// Utility to generate synthetic, easy-to-read career entries for students
-// in grades 9–12. Keeps language simple and follows the Explore card pattern.
+// Utility to generate synthetic career entries covering beginner to long-term careers
 
 const SAMPLE_IMAGES = [
   '/images/marketing.jpg',
@@ -47,84 +46,147 @@ const SIMPLE_GROWTH = [
   'Beginner roles are opening every year',
 ];
 
-// Title templates that are friendly and clear for grades 9–12
+// Role names expanded by category with beginner to advanced/long-term roles
+const ROLES_BY_CATEGORY = {
+  'digital-creator': [
+    'Content Creator', 'Video Editor', 'Script Writer', 'Thumbnail Designer', 'Social Media Helper',
+    'Digital Strategist', 'SEO Specialist', 'Content Marketing Manager', 'Influencer Manager',
+    'Digital Media Analyst', 'Brand Partnerships Manager', 'Creative Director', 'Social Media Consultant',
+    'Online Community Manager', 'Video Producer', 'Digital Campaign Manager', 'UX Content Designer',
+    'E-commerce Content Specialist', 'AI Content Developer', 'Virtual Reality Content Creator'
+  ],
+  'media': [
+    'Podcast Editor', 'Camera Assistant', 'Story Writer', 'Music Mixer', 'Video Producer',
+    'Film Director', 'Screenwriter', 'Broadcast Journalist', 'Media Planner',
+    'Post-production Supervisor', 'Public Relations Manager', 'Media Research Analyst',
+    'Digital Archivist', 'Sound Designer', 'Video Journalist', 'Content Acquisition Manager',
+    'Cinematographer', 'Media Consultant', 'Virtual Production Specialist', 'Multimedia Journalist'
+  ],
+  'event': [
+    'Event Planner', 'Stage Crew', 'Light Operator', 'Host/Anchor', 'Logistics Assistant',
+    'Event Coordinator', 'Sponsorship Manager', 'Venue Manager', 'Wedding Planner',
+    'Exhibition Designer', 'Trade Show Manager', 'Corporate Events Manager', 'Digital Event Producer',
+    'Event Marketing Specialist', 'Audio-Visual Technician', 'Exhibitor Relations Manager',
+    'Conference Manager', 'Fundraising Coordinator', 'Event Security Manager', 'Experiential Marketing Manager'
+  ],
+  'sports': [
+    'Fitness Coach', 'Sports Writer', 'Score Manager', 'Team Assistant', 'Yoga Helper',
+    'Athletic Trainer', 'Sports Psychologist', 'Sports Nutritionist', 'Sports Manager',
+    'Sports Analyst', 'Physiotherapist', 'Strength & Conditioning Coach', 'Rehabilitation Specialist',
+    'Sports Agent', 'Sports Marketing Manager', 'Coach', 'Scouting Coordinator', 'Kinesiologist',
+    'Adventure Tourism Guide', 'Sports Event Organizer'
+  ],
+  'fashion': [
+    'Fashion Blogger', 'Style Assistant', 'Catalog Photographer', 'Model Coordinator', 'Fabric Researcher',
+    'Fashion Designer', 'Textile Designer', 'Fashion Merchandiser', 'Fashion Buyer',
+    'Stylist', 'Visual Merchandiser', 'Fashion Marketing Manager', 'Costume Designer',
+    'Fashion Illustrator', 'Trend Forecaster', 'Pattern Maker', 'Quality Manager', 'Fashion Journalist',
+    'Luxury Brand Manager', 'Fashion Production Manager'
+  ],
+  'culinary': [
+    'Recipe Creator', 'Kitchen Assistant', 'Food Photographer', 'Bakery Helper', 'Nutrition Guide',
+    'Sous Chef', 'Pastry Chef', 'Culinary Instructor', 'Food Scientist',
+    'Restaurant Manager', 'Menu Planner', 'Catering Manager', 'Food Safety Specialist',
+    'Nutrition Consultant', 'Food Stylist', 'Chef de Cuisine', 'Sommelier', 'Food Product Developer',
+    'Gastronomy Researcher', 'Culinary Entrepreneur'
+  ],
+  'travel': [
+    'Travel Blogger', 'Trip Planner', 'Tour Guide Assistant', 'Photo Curator', 'Map Researcher',
+    'Travel Agent', 'Tour Operator', 'Travel Consultant', 'Destination Manager',
+    'Airline Customer Service', 'Hotel Manager', 'Cruise Director', 'Travel Policy Analyst',
+    'Ecotourism Specialist', 'Cultural Heritage Coordinator', 'Travel Writer', 'Travel Photographer',
+    'Adventure Travel Guide', 'Global Mobility Specialist', 'Travel Marketing Manager'
+  ],
+  'marketing': [
+    'Social Media Marketer', 'Brand Assistant', 'Ad Copy Writer', 'SEO Helper', 'Email Marketer',
+    'Marketing Analyst', 'Content Strategist', 'Product Marketing Manager', 'Market Researcher',
+    'Digital Marketing Manager', 'Marketing Communications Manager', 'Growth Hacker',
+    'Customer Insights Analyst', 'Affiliate Marketing Specialist', 'Campaign Manager',
+    'Brand Manager', 'CRM Specialist', 'Media Buyer', 'Event Marketing Manager', 'Marketing Consultant'
+  ],
+  'finance': [
+    'Budget Planner', 'Money Tracker', 'Market Researcher', 'Excel Assistant', 'Crypto Basics Learner',
+    'Financial Analyst', 'Stock Broker', 'Portfolio Manager', 'Risk Analyst',
+    'Compliance Officer', 'Investment Banker', 'Treasury Analyst', 'Credit Analyst',
+    'Financial Planner', 'Scheme Provider', 'Tax Consultant', 'Wealth Manager',
+    'Fund Manager', 'Corporate Finance Analyst', 'Quantitative Analyst', 'Actuary', 'Audit Manager',
+    'Financial Controller', 'Commercial Banker', 'Asset Manager', 'Forex Trader', 'Private Equity Analyst',
+    'Venture Capital Analyst', 'Mortgage Advisor', 'Insurance Underwriter', 'Retail Banker',
+    'Financial Advisor', 'Investment Consultant', 'Pension Fund Manager', 'Financial Software Developer',
+    'Blockchain Analyst', 'Debt Analyst', 'Equity Research Analyst', 'Hedge Fund Manager',
+    'Risk Manager', 'Derivatives Trader', 'Economic Analyst', 'Capital Markets Analyst', 'Credit Risk Modeler'
+  ],
+  'psychology': [
+    'Peer Listener', 'Motivation Writer', 'Habit Coach', 'Study Skills Guide', 'Stress Support Assistant',
+    'Clinical Psychologist', 'Counseling Psychologist', 'School Psychologist', 'Neuropsychologist',
+    'Industrial-Organizational Psychologist', 'Health Psychologist', 'Forensic Psychologist',
+    'Sports Psychologist', 'Rehabilitation Counselor', 'Marriage and Family Therapist',
+    'Behavioral Analyst', 'Mental Health Counselor', 'Child Psychologist', 'Research Psychologist',
+    'Psychiatric Technician'
+  ],
+  'art': [
+    'Graphic Designer', 'Illustration Helper', 'Poster Maker', 'Logo Beginner', 'Photo Editor',
+    'Animator', 'Fine Artist', 'Art Director', 'Concept Artist',
+    'Gallery Curator', 'Digital Illustrator', 'Visual Effects Artist', 'Photographer',
+    'Art Educator', 'Muralist', 'Printmaker', 'Tattoo Artist', 'Sculptor', 'Textile Artist',
+    'Art Therapist'
+  ],
+  'entrepreneurship': [
+    'Startup Helper', 'Idea Researcher', 'Sales Assistant', 'Customer Support', 'Product Tester',
+    'Business Development Manager', 'Startup Founder', 'Venture Capital Analyst', 'Innovation Manager',
+    'Operations Manager', 'Marketing Strategist', 'Financial Planner', 'Growth Hacker',
+    'Project Manager', 'Business Analyst', 'Angel Investor', 'E-commerce Entrepreneur',
+    'Social Entrepreneur', 'Lean Startup Coach', 'Scaleup Consultant'
+  ],
+};
+
+// Title templates that are friendly and clear for grades 9–12 and beyond
 const TITLE_TEMPLATES = [
   'Junior {role}',
   '{role} Assistant',
   'Student {role}',
   '{role} Intern',
   'Beginner {role}',
+  '{role}',
+  'Senior {role}',
+  'Lead {role}',
+  'Chief {role}',
+  'Head {role}'
 ];
-
-// Role names by category
-const ROLES_BY_CATEGORY = {
-  'digital-creator': [
-    'Content Creator', 'Video Editor', 'Script Writer', 'Thumbnail Designer', 'Social Media Helper'
-  ],
-  'media': [
-    'Podcast Editor', 'Camera Assistant', 'Story Writer', 'Music Mixer', 'Video Producer'
-  ],
-  'event': [
-    'Event Planner', 'Stage Crew', 'Light Operator', 'Host/Anchor', 'Logistics Assistant'
-  ],
-  'sports': [
-    'Fitness Coach', 'Sports Writer', 'Score Manager', 'Team Assistant', 'Yoga Helper'
-  ],
-  'fashion': [
-    'Fashion Blogger', 'Style Assistant', 'Catalog Photographer', 'Model Coordinator', 'Fabric Researcher'
-  ],
-  'culinary': [
-    'Recipe Creator', 'Kitchen Assistant', 'Food Photographer', 'Bakery Helper', 'Nutrition Guide'
-  ],
-  'travel': [
-    'Travel Blogger', 'Trip Planner', 'Tour Guide Assistant', 'Photo Curator', 'Map Researcher'
-  ],
-  'marketing': [
-    'Social Media Marketer', 'Brand Assistant', 'Ad Copy Writer', 'SEO Helper', 'Email Marketer'
-  ],
-  'finance': [
-    'Budget Planner', 'Money Tracker', 'Market Researcher', 'Excel Assistant', 'Crypto Basics Learner'
-  ],
-  'psychology': [
-    'Peer Listener', 'Motivation Writer', 'Habit Coach', 'Study Skills Guide', 'Stress Support Assistant'
-  ],
-  'art': [
-    'Graphic Designer', 'Illustration Helper', 'Poster Maker', 'Logo Beginner', 'Photo Editor'
-  ],
-  'entrepreneurship': [
-    'Startup Helper', 'Idea Researcher', 'Sales Assistant', 'Customer Support', 'Product Tester'
-  ],
-};
 
 function pick(arr, i) {
   return arr[i % arr.length];
 }
 
-export function generateSyntheticCareers(count = 1000, startId = 100) {
+export function generateSyntheticCareers(count = 1200, startId = 100) {
   const items = [];
-  for (let i = 0; i < count; i += 1) {
-    const category = pick(CATEGORIES, i);
+  let index = 0;
+  while (items.length < count) {
+    const category = pick(CATEGORIES, index);
     const roles = ROLES_BY_CATEGORY[category] || ['Career Explorer'];
-    const role = pick(roles, Math.floor(i / CATEGORIES.length));
-    const title = TITLE_TEMPLATES[i % TITLE_TEMPLATES.length].replace('{role}', role);
-    const image = pick(SAMPLE_IMAGES, i);
-    const trend = pick(SIMPLE_TRENDS, i);
-    const growth = pick(SIMPLE_GROWTH, i);
+    // We cycle through roles by incrementing roleIndex each full category cycle
+    const roleIndex = Math.floor(index / CATEGORIES.length) % roles.length;
+    const role = roles[roleIndex];
+    const titleTemplate = TITLE_TEMPLATES[index % TITLE_TEMPLATES.length];
+    const title = titleTemplate.replace('{role}', role);
+    const image = pick(SAMPLE_IMAGES, index);
+    const trend = pick(SIMPLE_TRENDS, index);
+    const growth = pick(SIMPLE_GROWTH, index);
 
     items.push({
-      id: startId + i,
+      id: startId + index,
       title,
-      description: `Learn what a ${role} does with simple projects. Start small, practice daily, and build confidence.`,
+      description: `Learn what a ${role} does with simple projects and grow your skills from beginner to expert level.`,
       category,
       trend,
       booming: growth,
       image,
       alt: `${role} illustration`,
     });
+
+    index++;
   }
   return items;
 }
 
 export default generateSyntheticCareers;
-
-
