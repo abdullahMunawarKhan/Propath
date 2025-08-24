@@ -1,30 +1,36 @@
 import { createClient } from '@supabase/supabase-js';
 
-// Initialize Supabase with secret keys from environment (server-side only)
-const supabase = createClient(process.env.VITE_SUPABASE_URL, process.env.VITE_SUPABASE_ANON_KEY);
+// Initialize Supabase client (update variable names as per your deployment environment)
+const supabase = createClient(
+  process.env.VITE_SUPABASE_URL, // or process.env.SUPABASE_URL
+  process.env.VITE_SUPABASE_ANON_KEY // or process.env.SUPABASE_ANON_KEY
+);
 
-// Function to call Perplexity API for roadmap generation (replace with actual Perplexity API details)
-async function generateRoadmapFromPerplexity(domain) {
-  // Example Perplexity API call - adjust as per official docs
-  const response = await fetch('https://api.perplexity.ai/search', {
+// Function to call OpenRouter API for roadmap generation
+async function generateRoadmapFromOpenRouter(domain) {
+  const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
     method: 'POST',
     headers: {
-      'Authorization': `Bearer ${process.env.PERPLEXITY_API_KEY}`,  
+      'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      query: `Provide a detailed, step-by-step career roadmap for the domain "${domain}".`,
+      model: "openchat/openchat-3.5", // Choose a free, fast model
+      messages: [
+        { role: "system", content: "You are an expert Indian career guide assistant." },
+        { role: "user", content: `List 5 step-by-step roadmap points for building a successful career in the field: "${domain}". Reply as a plain numbered or bulleted list.` }
+      ],
     }),
   });
 
   const data = await response.json();
-  const answer = data.answer || "";
+  const content = data?.choices?.[0]?.message?.content || "";
 
-  // Parse response text into steps array (simple split by lines, trim and remove numbering)
-  const steps = answer
-    .split(/\n+/)
+  // Parse lines to remove numbers/bullets and produce an array of steps
+  const steps = content
+    .split('\n')
     .map(line => line.trim())
-    .filter(Boolean)
+    .filter(line => line.length > 0)
     .map(line => line.replace(/^\d+\.?\s*/, '').replace(/^[-*]\s*/, ''));
 
   return steps;
@@ -52,8 +58,8 @@ export default async function handler(req, res) {
       return res.status(200).json({ roadmap: data.roadmap_steps });
     }
 
-    // 2. Otherwise generate roadmap from Perplexity API
-    const aiRoadmap = await generateRoadmapFromPerplexity(domain);
+    // 2. Otherwise generate roadmap from OpenRouter
+    const aiRoadmap = await generateRoadmapFromOpenRouter(domain);
 
     // 3. Store generated roadmap in Supabase for caching
     const { error: insertError } = await supabase
