@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import { supabase } from './utils/supabase';
+import { supabase } from '../utils/supabase';
 import { useNavigate } from 'react-router-dom';
-import { useChatbaseBot } from './utils/useChatbaseBot';
+import { useChatbaseBot } from '../utils/useChatbaseBot';
 
 const Result = () => {
   useChatbaseBot();

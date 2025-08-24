@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { supabase } from './utils/supabase';
+import { supabase } from '../utils/supabase';
 import { useNavigate } from 'react-router-dom';
-import examData from './examData';
+import examData from '../data/examData';
 
 const parseResources = (resourceString) => {
   if (!resourceString) return [];

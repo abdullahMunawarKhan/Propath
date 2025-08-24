@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { supabase } from './utils/supabase';
+import { supabase } from '../utils/supabase';
 import { useNavigate } from 'react-router-dom';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 

@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from './utils/supabase';
-import questions from './questions';
+import { supabase } from '../utils/supabase';
+import questions from '../data/questions';
 
 const TOTAL_TIME = 300; // total quiz time in seconds (5 minutes)
 

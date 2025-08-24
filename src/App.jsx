@@ -1,17 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { supabase } from './utils/supabase';
-import Login from './Login';
-import Signup from './Signup';
-import StudentInfoForm from './StudentInfoForm';
-import Dashboard from './dashboard';
-import Quiz from './Quiz';
-import Explore from './Explore';
-import Roadmaps from './Roadmaps';
-import Result from './Result';
-import Exams from './Exams';
-import UpdatePassword from './UpdatePassword';
-import Welcome from './Welcome';
+import Login from './pages/Login';
+import Signup from './pages/Signup';
+import StudentInfoForm from './pages/StudentInfoForm';
+import Dashboard from './pages/dashboard';
+import Quiz from './pages/Quiz';
+import Explore from './pages/Explore';
+import Roadmaps from './pages/Roadmaps';
+import Result from './pages/Result';
+import Exams from './pages/Exams';
+import UpdatePassword from './pages/UpdatePassword';
+import Welcome from './pages/Welcome';
 
 function App() {
   const [user, setUser] = useState(null);

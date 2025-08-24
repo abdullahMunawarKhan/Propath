@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from './utils/supabase';
-import { useChatbaseBot } from './utils/useChatbaseBot';
+import { supabase } from '../utils/supabase';
+import { useChatbaseBot } from '../utils/useChatbaseBot';
 
 const Dashboard = () => {
   useChatbaseBot();

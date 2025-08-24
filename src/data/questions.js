@@ -57,13 +57,7 @@ const questions = [
     options:['DPH','EPH','EOH','EPG'],
     answer:'EPH',
   },
-  // {
-  //   id:9,
-  //   domain:'Engineering',
-  //   question: ' ',
-  //   options:[],
-  //   answer:'',
-  // },
+
   {
     id:10,
     domain:'common',
@@ -71,20 +65,7 @@ const questions = [
     options:['32 km/hr','35 km/hr','30km/hr','28 km/hr',],
     answer:'32 km/hr',
   },
-  // {
-  //   id:11,
-  //   domain:["common"],
-  //   question: ' ',
-  //   options:[],
-  //   answer:'',
-  // },
-  // {
-  //   id:12,
-  //   domain:["common"],
-  //   question: ' ',
-  //   options:[],
-  //   answer:'',
-  // },
+
 {
     id: 9,
     domain: 'Digital Creator Economy',

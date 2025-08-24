@@ -1,8 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useChatbaseBot } from './utils/useChatbaseBot';// adjust import if needed
-import { supabase } from './utils/supabase';
-import { generateSyntheticCareers } from './utils/generateCareers';
+import { useChatbaseBot } from '../utils/useChatbaseBot';// adjust import if needed
+import { supabase } from '../utils/supabase';
+import { generateSyntheticCareers } from '../utils/generateCareers';
 
 // Local images mapped per domain with arrays of image paths
 const domainImages = {
