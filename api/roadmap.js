@@ -6,35 +6,33 @@ const supabase = createClient(
   process.env.VITE_SUPABASE_ANON_KEY // or process.env.SUPABASE_ANON_KEY
 );
 
-// Function to call OpenRouter API for roadmap generation
-async function generateRoadmapFromOpenRouter(domain) {
-  const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      model: "openchat/openchat-3.5", // Choose a free, fast model  
-      messages: [
-        { role: "system", content: "You are an expert Indian career guide assistant." },
-        { role: "user", content: `List 5 step-by-step roadmap points for building a successful career in the field: "${domain}". Reply as a plain numbered or bulleted list.` }
-      ],
-    }),
-  });
-
+// Function to call Gemini API for roadmap generation
+async function generateRoadmapFromGemini(domain) {
+  const response = await fetch(
+    "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-pro:generateContent?key=" + process.env.GEMINI_API_KEY,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [{
+          role: "user",
+          parts: [{
+            text: `List 5 step-by-step career roadmap points for the domain "${domain}". Reply as a plain numbered or bulleted list.`
+          }]
+        }]
+      })
+    }
+  );
   const data = await response.json();
-  const content = data?.choices?.[0]?.message?.content || "";
-
-  // Parse lines to remove numbers/bullets and produce an array of steps
-  const steps = content
+  const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+  // Parse steps as array, remove numbers/bullets
+  return text
     .split('\n')
     .map(line => line.trim())
     .filter(line => line.length > 0)
     .map(line => line.replace(/^\d+\.?\s*/, '').replace(/^[-*]\s*/, ''));
-
-  return steps;
 }
+
 
 export default async function handler(req, res) {
   const { domain } = req.query;
@@ -58,8 +56,10 @@ export default async function handler(req, res) {
       return res.status(200).json({ roadmap: data.roadmap_steps });
     }
 
-    // 2. Otherwise generate roadmap from OpenRouter
-    const aiRoadmap = await generateRoadmapFromOpenRouter(domain);
+
+    // const aiRoadmap = await generateRoadmapFromPerplexity(domain);
+    const aiRoadmap = await generateRoadmapFromGemini(domain);
+
 
     // 3. Store generated roadmap in Supabase for caching
     const { error: insertError } = await supabase
