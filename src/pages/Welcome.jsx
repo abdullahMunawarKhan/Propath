@@ -1,8 +1,19 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { supabase } from '../utils/supabase'; // Adjust path if needed
 
 const Welcome = () => {
   const navigate = useNavigate();
+
+  // Updated "Get Started" button logic as discussed
+  const handleGetStarted = async () => {
+    const { data } = await supabase.auth.getUser();
+    if (data?.user) {
+      navigate('/dashboard');
+    } else {
+      navigate('/login');
+    }
+  };
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 px-4 sm:px-6 lg:px-8">
@@ -29,13 +40,11 @@ const Welcome = () => {
             />
             <div className="absolute -inset-4 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full blur-xl opacity-30 animate-pulse"></div>
           </div>
-          
           <h1 className="text-4xl sm:text-6xl md:text-7xl font-extrabold mb-6">
             <span className="bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600 bg-clip-text text-transparent">
               Welcome to ProPath
             </span>
           </h1>
-          
           <p className="text-lg sm:text-xl md:text-2xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
             Your personalized career guidance platform designed to help you discover and navigate your professional journey
           </p>
@@ -44,7 +53,7 @@ const Welcome = () => {
         {/* Action buttons */}
         <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-center mb-12">
           <button
-            onClick={() => navigate('/login')}
+            onClick={handleGetStarted}
             className="group relative px-8 py-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-purple-500 focus:ring-offset-2 min-w-[200px]"
           >
             <span className="relative z-10 flex items-center justify-center space-x-2">
