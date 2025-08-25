@@ -126,7 +126,7 @@ const Roadmaps = () => {
               <h3 style={{ color: '#6a38c7', marginBottom: 10 }}>{domain}</h3>
               <ol style={{ paddingLeft: 20, color: '#444', margin: 0 }}>
                 {(roadmaps[domain] || []).length === 0 ? (
-                  <li style={{ color: '#999' }}>No roadmap found.</li>
+                  <li style={{ color: '#999' }}>buy API credits to use</li>
                 ) : (
                   (roadmaps[domain] || []).map((step, i) => (
                     <li key={i} style={{ marginBottom: 6 }}>{step}</li>

@@ -15,7 +15,7 @@ async function generateRoadmapFromOpenRouter(domain) {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      model: "openchat/openchat-3.5", // Choose a free, fast model
+      model: "openchat/openchat-3.5", // Choose a free, fast model  
       messages: [
         { role: "system", content: "You are an expert Indian career guide assistant." },
         { role: "user", content: `List 5 step-by-step roadmap points for building a successful career in the field: "${domain}". Reply as a plain numbered or bulleted list.` }
@@ -77,3 +77,5 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'Internal server error' });
   }
 }
+
+
