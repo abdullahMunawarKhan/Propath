@@ -6,11 +6,10 @@ import { useChatbaseBot } from '../utils/useChatbaseBot';
 const Roadmaps = () => {
   useChatbaseBot();
   const [selectedDomains, setSelectedDomains] = useState([]);
-  const [roadmaps, setRoadmaps] = useState({}); // { domain: [steps] }
+  const [roadmaps, setRoadmaps] = useState({});
   const [saved, setSaved] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  // Fetch user domains from Supabase on mount
   useEffect(() => {
     (async () => {
       const user = await supabase.auth.getUser();
@@ -27,26 +26,27 @@ const Roadmaps = () => {
     })();
   }, []);
 
-  // Fetch roadmap for each selected domain from backend API
   useEffect(() => {
     if (selectedDomains.length === 0) return;
-
-    const fetchRoadmap = async (domain) => {
-      try {
-        const res = await fetch(`/api/roadmap?domain=${encodeURIComponent(domain)}`);
-        const json = await res.json();
-        return json.roadmap || [];
-      } catch {
-        return [];
-      }
-    };
 
     (async () => {
       setLoading(true);
       const roads = {};
+
       for (const domain of selectedDomains) {
-        roads[domain] = await fetchRoadmap(domain);
+        const { data, error } = await supabase
+          .from('roadmaps')
+          .select('roadmap_steps')
+          .eq('domain', domain)
+          .single();
+
+        if (error || !data) {
+          roads[domain] = ["Not available"];
+        } else {
+          roads[domain] = data.roadmap_steps || ["Not available"];
+        }
       }
+
       setRoadmaps(roads);
       setLoading(false);
     })();
@@ -97,83 +97,61 @@ const Roadmaps = () => {
   };
 
   return (
-    <div style={{ maxWidth: 800, margin: '40px auto', padding: '24px', background: '#f7f7fb', borderRadius: 12 }}>
-      <h2 style={{ textAlign: 'center', marginBottom: 30 }}>Your Selected Career Roadmaps</h2>
+    <div className="max-w-5xl mx-auto mt-10 p-8 bg-gray-50 rounded-xl shadow-sm">
+      <h2 className="text-center text-2xl font-bold mb-8 text-gray-800">
+        Your Selected Career Roadmaps
+      </h2>
 
       {loading ? (
-        <div style={{ textAlign: 'center', color: '#888', margin: '40px 0' }}>
-          Loading...
-        </div>
+        <div className="text-center text-gray-500 my-10">Loading...</div>
       ) : selectedDomains.length === 0 ? (
-        <div style={{ textAlign: 'center', color: '#888', margin: '40px 0' }}>
+        <div className="text-center text-gray-500 my-10">
           No career domains selected yet.
         </div>
       ) : (
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 24 }}>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {selectedDomains.map((domain) => (
             <div
               key={domain}
-              style={{
-                flex: '1 1 320px',
-                background: 'white',
-                borderRadius: 10,
-                boxShadow: '0 2px 8px rgba(0,0,0,0.07)',
-                marginBottom: 20,
-                padding: 20,
-                minWidth: 280
-              }}
+              className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition"
             >
-              <h3 style={{ color: '#6a38c7', marginBottom: 10 }}>{domain}</h3>
-              <ol style={{ paddingLeft: 20, color: '#444', margin: 0 }}>
-                {(roadmaps[domain] || []).length === 0 ? (
-                  <li style={{ color: '#999' }}>buy API credits to use or use chatbot feature for now </li>
-                ) : (
-                  (roadmaps[domain] || []).map((step, i) => (
-                    <li key={i} style={{ marginBottom: 6 }}>{step}</li>
-                  ))
-                )}
+              <h3 className="text-lg font-semibold text-purple-700 mb-3">
+                {domain}
+              </h3>
+              <ol className="list-decimal pl-5 text-gray-700 space-y-2">
+                {(roadmaps[domain] || []).map((step, i) => (
+                  <li
+                    key={i}
+                    className={step === "Not available" ? "text-gray-400 italic" : ""}
+                  >
+                    {step}
+                  </li>
+                ))}
               </ol>
             </div>
           ))}
         </div>
       )}
 
-      <div style={{ display: 'flex', gap: 16, justifyContent: 'center', marginTop: 40 }}>
+      <div className="flex justify-center gap-4 mt-10">
         <button
           onClick={handleSaveRoadmaps}
           disabled={selectedDomains.length === 0 || loading}
-          style={{
-            background: '#6a38c7', color: 'white', border: 0, borderRadius: 5, padding: '10px 24px', fontSize: 16, cursor: 'pointer', opacity: loading ? 0.6 : 1
-          }}
+          className="px-6 py-2 rounded-md text-white bg-purple-600 hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
         >
           Save Roadmaps
         </button>
         <button
           onClick={handleExportPDF}
           disabled={selectedDomains.length === 0 || loading}
-          style={{
-            background: '#fff',
-            color: '#6a38c7',
-            border: '1px solid #6a38c7',
-            borderRadius: 5,
-            padding: '10px 24px',
-            fontSize: 16,
-            cursor: 'pointer',
-            opacity: loading ? 0.6 : 1
-          }}
+          className="px-6 py-2 rounded-md border border-purple-600 text-purple-600 bg-white hover:bg-purple-50 disabled:opacity-50 disabled:cursor-not-allowed transition"
         >
           Export PDF
         </button>
       </div>
 
       {saved && (
-        <div style={{
-          marginTop: 20,
-          textAlign: 'center',
-          color: '#43a047',
-          fontWeight: 'bold',
-          fontSize: 18
-        }}>
+        <div className="mt-6 text-center text-green-600 font-semibold">
           Roadmaps saved successfully!
         </div>
       )}
