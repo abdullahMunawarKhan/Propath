@@ -20,7 +20,8 @@ const Roadmaps = () => {
         .eq('user_id', userId)
         .single();
       if (!error && data?.domain) {
-        setSelectedDomains(data.domain);
+        // only convert domain names to uppercase
+        setSelectedDomains(data.domain.map(d => d.toUpperCase()));
       }
       setLoading(false);
     })();
@@ -34,16 +35,18 @@ const Roadmaps = () => {
       const roads = {};
 
       for (const domain of selectedDomains) {
+        const upperDomain = domain.toUpperCase(); // ensure uppercase for query
         const { data, error } = await supabase
           .from('roadmaps')
           .select('roadmap_steps')
-          .eq('domain', domain)
+          .eq('domain', upperDomain)
           .single();
 
         if (error || !data) {
-          roads[domain] = ["Not available"];
+          roads[upperDomain] = ["Not available"];
         } else {
-          roads[domain] = data.roadmap_steps || ["Not available"];
+          // keep roadmap steps as they are
+          roads[upperDomain] = data.roadmap_steps || ["Not available"];
         }
       }
 
@@ -56,15 +59,17 @@ const Roadmaps = () => {
     const user = await supabase.auth.getUser();
     const userId = user?.data?.user?.id;
 
+    // ensure only domains are uppercase when saving
+    const upperDomains = selectedDomains.map(d => d.toUpperCase());
     const roadmapPoints = {};
-    selectedDomains.forEach(domain => {
+    upperDomains.forEach(domain => {
       roadmapPoints[domain] = roadmaps[domain] || [];
     });
 
     const { error } = await supabase.from('saved_roadmaps').insert({
       user_id: userId,
-      domains: selectedDomains,
-      roadmap_points: roadmapPoints,
+      domains: upperDomains, // uppercase domains
+      roadmap_points: roadmapPoints, // steps unchanged
     });
 
     if (!error) {
@@ -80,11 +85,13 @@ const Roadmaps = () => {
 
     let y = 30;
     selectedDomains.forEach((domain, idx) => {
+      const upperDomain = domain.toUpperCase();
       doc.setFontSize(14);
-      doc.text(`${idx + 1}. ${domain}`, 14, y);
+      doc.text(`${idx + 1}. ${upperDomain}`, 14, y);
       y += 8;
 
-      (roadmaps[domain] || []).forEach((step) => {
+      // roadmap steps remain original case
+      (roadmaps[upperDomain] || []).forEach((step) => {
         doc.setFontSize(12);
         doc.text(`- ${step}`, 18, y);
         y += 6;
@@ -110,26 +117,29 @@ const Roadmaps = () => {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {selectedDomains.map((domain) => (
-            <div
-              key={domain}
-              className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition"
-            >
-              <h3 className="text-lg font-semibold text-purple-700 mb-3">
-                {domain}
-              </h3>
-              <ol className="list-decimal pl-5 text-gray-700 space-y-2">
-                {(roadmaps[domain] || []).map((step, i) => (
-                  <li
-                    key={i}
-                    className={step === "Not available" ? "text-gray-400 italic" : ""}
-                  >
-                    {step}
-                  </li>
-                ))}
-              </ol>
-            </div>
-          ))}
+          {selectedDomains.map((domain) => {
+            const upperDomain = domain.toUpperCase();
+            return (
+              <div
+                key={upperDomain}
+                className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition"
+              >
+                <h3 className="text-lg font-semibold text-purple-700 mb-3">
+                  {upperDomain}
+                </h3>
+                <ol className="list-decimal pl-5 text-gray-700 space-y-2">
+                  {(roadmaps[upperDomain] || []).map((step, i) => (
+                    <li
+                      key={i}
+                      className={step === "Not available" ? "text-gray-400 italic" : ""}
+                    >
+                      {step}
+                    </li>
+                  ))}
+                </ol>
+              </div>
+            );
+          })}
         </div>
       )}
 
