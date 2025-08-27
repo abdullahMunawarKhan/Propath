@@ -15,7 +15,7 @@ ProPath is a career exploration and AI-powered guidance platform built with Reac
 
 - React + Tailwind CSS
 - Supabase (Auth & Database)
-- Cohere API (Chatbot)
+- GPT-4 chatbot integrated
 - GitHub (Version Control)
 
 ## 📦 Setup & Run
