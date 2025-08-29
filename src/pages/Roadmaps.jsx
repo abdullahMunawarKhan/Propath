@@ -133,11 +133,26 @@ const Roadmaps = () => {
       setTimeout(() => setSaved(false), 3000);
     }
   };
-
+  const websiteName = 'ProPath'; // Replace with your name
+  // Helper to add watermark on every page
+  const addWatermark = (doc, websiteName) => {
+    doc.setFontSize(48);
+    doc.setTextColor(200, 200, 200); // Light gray
+    doc.text(websiteName, doc.internal.pageSize.getWidth() / 2, doc.internal.pageSize.getHeight() / 2, {
+      angle: 30,
+      align: 'center'
+    });
+  };
+const addHeader = (doc, websiteName) => {
+  doc.setFontSize(18);
+  doc.setTextColor(60, 60, 60);
+  doc.text(websiteName, 38, 20); // adjust y for alignment
+};
   const handleExportPDF = () => {
     const doc = new jsPDF();
-    doc.setFontSize(16);
-    doc.text('Career Roadmaps', 14, 20);
+    addWatermark(doc, websiteName);
+    addHeader(doc,websiteName);
+
 
     let y = 30;
     const pageHeight = doc.internal.pageSize.height || doc.internal.pageSize.getHeight();

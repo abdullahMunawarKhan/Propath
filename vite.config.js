@@ -1,6 +1,12 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import sitemap from 'vite-plugin-sitemap';
 
 export default defineConfig({
-  plugins: [react()]
-})
+  plugins: [
+    react(),
+    sitemap({
+      hostname: 'https://propathguider.vercel.app', // your live domain
+    }),
+  ],
+});
