@@ -129,12 +129,11 @@ function App() {
       <footer className="mt-auto bg-gradient-to-t from-black/80 via-slate-900/80 to-slate-800/70 text-gray-300 border-t border-white/10 backdrop-blur-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
-            <div className="text-center md:text-left">
-              
-            </div>
             <div className="text-center">
               <p className="text-sm font-semibold text-white">About the Developer</p>
-              <p className="text-xs text-gray-400 mt-1">Crafted with care. Connect with me: Abdullah Munawar Khan</p>
+              <p className="font-semibold text-yellow-400 text-base ml-7">
+                Abdullah Munawar Khan
+              </p>
               <p className="text-sm text-gray-400">&copy; 2025 ProPath. Empowering students to discover their career path.</p>
             </div>
             <div className="flex justify-center md:justify-end items-center gap-3">
