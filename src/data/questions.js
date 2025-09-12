@@ -1,322 +1,509 @@
-const questions = [
-  {
-    id: 1,
-    domain: 'Engineering',
-    question: 'What does a resistor do in an electrical circuit?',
-    options: ['Stores energy', 'Resists current flow', 'Amplifies signals', 'Converts current to voltage'],
-    answer: 'Resists current flow',
-  },
-  {
-    id: 2,
-    domain: 'Medicine',
-    question: 'Which organ is affected',
-    options: ['Heart', 'Liver', 'Lungs', 'Kidney'],
-    answer: 'Liver',
-  },
-  {
-    id: 3,
-    domain: 'Design',
-    question: 'What is the principle of contrast in design?',
-    options: ['Using similar elements', 'Using repetition', 'Using different elements to create emphasis', 'Using balance only'],
-    answer: 'Using different elements to create emphasis',
-  },
-  {
-    id:4,
-    domain: 'Engineering',
-    question:'What is first law of newton.',
-    options: ['every actions has equal and opposite reaction','law of inertia','force =masss*acceleration','dont know'],
-    answer:'law of inertia',
-  },
-   {
-    id:5,
-    domain:'common',
-    question: '5+3=28,9+1=810, 8+6=214 then 7+3=?',
-    options:['410','37',,'710','410'],
-    answer:'410',
-  },
-  
-  {
-    id:8,
-    domain:'common',
-    question: "If A is the brother of B and B is the sister of C, then C is A's:",
-    options:['brother','Sister','Brother or sister','Father'],
-    answer:'Brother or Sister',
-  },
-  {
-    id:6,
-    domain:'common',
-    question: 'If you face East and turn right, what direction are you facing now?',
-    options:['North','South','West','South-west'],
-    answer:'South',
-  },
- 
-  {
-    id:7,
-    domain:'common',
-    question: 'If CAT = DBU, then DOG = ?',
-    options:['DPH','EPH','EOH','EPG'],
-    answer:'EPH',
-  },
 
-  {
-    id:10,
-    domain:'common',
-    question: 'A vehicle travels from point A to point B at a speed of 50 km/h and returns from B to A by another route which is 20% longer than the first. If the average speed for the whole journey is 40 km/h, find the speed of the vehicle on the return journey. ',
-    options:['32 km/hr','35 km/hr','30km/hr','28 km/hr',],
-    answer:'32 km/hr',
-  },
+// questions.js
+// Career-interest quiz data + scoring + Gemini AI integration
+// Make sure to set VITE_GEMINI_API_KEY in your .env file.
 
-{
-    id: 9,
-    domain: 'Digital Creator Economy',
-    question: 'Which platform is primarily used for short-form video content by creators?',
-    options: ['YouTube', 'Instagram', 'TikTok', 'Facebook'],
-    answer: 'TikTok',
-  },
-  {
-    id: 10,
-    domain: 'Digital Creator Economy',
-    question: 'What is considered a key metric in influencer marketing?',
-    options: ['Likes', 'Shares', 'Engagement rate', 'Followers only'],
-    answer: 'Engagement rate',
-  },
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
-  {
-    id: 11,
-    domain: 'Creative Media & Entertainment',
-    question: 'Which of the following is a post-production activity in film?',
-    options: ['Casting', 'Scripting', 'Editing', 'Location scouting'],
-    answer: 'Editing',
-  },
-  {
-    id: 12,
-    domain: 'Creative Media & Entertainment',
-    question: 'Which tool is widely used for video editing?',
-    options: ['AutoCAD', 'Final Cut Pro', 'Canva', 'Photoshop'],
-    answer: 'Final Cut Pro',
-  },
+/* -----------------------------
+   Utility: Shuffle helper
+   ----------------------------- */
+function shuffleArray(arr) {
+  return arr.sort(() => Math.random() - 0.5);
+}
 
-  {
-    id: 13,
-    domain: 'Event & Experience Management',
-    question: 'What is the first step in planning an event?',
-    options: ['Catering', 'Venue booking', 'Goal setting', 'Lighting'],
-    answer: 'Goal setting',
-  },
-  {
-    id: 14,
-    domain: 'Event & Experience Management',
-    question: 'Which tool is commonly used for event ticketing?',
-    options: ['Slack', 'Zoom', 'Eventbrite', 'Figma'],
-    answer: 'Eventbrite',
-  },
+/* -----------------------------
+   Quiz Data
+   ----------------------------- */
+const quiz = {
+  mcq: shuffleArray([
+    {
+      id: 1,
+      type: "mcq",
+      question: "Which activity excites you the most?",
+      options: [
+        { text: "Designing or building new technology", domain: "Engineering" },
+        { text: "Understanding how the human body works", domain: "Medicine" },
+        { text: "Creating art, music, or writing", domain: "Art, Design & Creativity" },
+        { text: "Solving puzzles or analyzing data", domain: "Science & Research" },
+      ],
+    },
+    {
+      id: 2,
+      type: "mcq",
+      question: "Which school subject do you enjoy the most?",
+      options: [
+        { text: "Mathematics or Physics", domain: "Engineering" },
+        { text: "Biology or Chemistry", domain: "Medicine" },
+        { text: "Literature or Fine Arts", domain: "Art, Design & Creativity" },
+        { text: "Economics or Business Studies", domain: "Business & Management" },
+      ],
+    },
+    {
+      id: 3,
+      type: "mcq",
+      question: "What kind of problem-solving appeals to you most?",
+      options: [
+        { text: "Building a bridge or machine", domain: "Engineering" },
+        { text: "Finding a cure for a disease", domain: "Medicine" },
+        { text: "Innovating new business strategies", domain: "Business & Management" },
+        { text: "Developing sustainable solutions for society", domain: "Social Sciences" },
+      ],
+    },
+    {
+      id: 4,
+      type: "mcq",
+      question: "If given free time, what would you prefer?",
+      options: [
+        { text: "Coding or experimenting with technology", domain: "Computer Science & IT" },
+        { text: "Helping people with health or lifestyle", domain: "Medicine" },
+        { text: "Writing, painting, or designing", domain: "Art, Design & Creativity" },
+        { text: "Learning about global cultures and history", domain: "Social Sciences" },
+      ],
+    },
+    {
+      id: 5,
+      type: "mcq",
+      question: "What motivates you the most?",
+      options: [
+        { text: "Inventing or innovating new things", domain: "Engineering" },
+        { text: "Making people’s lives healthier", domain: "Medicine" },
+        { text: "Expressing myself creatively", domain: "Art, Design & Creativity" },
+        { text: "Solving mysteries of the universe", domain: "Science & Research" },
+      ],
+    },
+    {
+      id: 6,
+      type: "mcq",
+      question: "Which career sounds most appealing?",
+      options: [
+        { text: "Software Developer or Engineer", domain: "Computer Science & IT" },
+        { text: "Doctor or Surgeon", domain: "Medicine" },
+        { text: "Entrepreneur or Manager", domain: "Business & Management" },
+        { text: "Researcher or Scientist", domain: "Science & Research" },
+      ],
+    },
+    {
+      id: 7,
+      type: "mcq",
+      question: "What type of environment do you prefer working in?",
+      options: [
+        { text: "Laboratories or high-tech facilities", domain: "Science & Research" },
+        { text: "Hospitals or healthcare centers", domain: "Medicine" },
+        { text: "Studios or creative spaces", domain: "Art, Design & Creativity" },
+        { text: "Corporate offices or startups", domain: "Business & Management" },
+      ],
+    },
 
-  {
-    id: 15,
-    domain: 'Sports & Fitness Career',
-    question: 'Which certification is essential for personal trainers?',
-    options: ['CPT', 'MBA', 'MD', 'CA'],
-    answer: 'CPT',
-  },
-  {
-    id: 16,
-    domain: 'Sports & Fitness Career',
-    question: 'Cardio training primarily improves what?',
-    options: ['Flexibility', 'Muscular strength', 'Endurance', 'Balance'],
-    answer: 'Endurance',
-  },
+    {
+      id: 8,
+      type: "mcq",
+      question: "What’s your biggest strength?",
+      options: [
+        { text: "Logical thinking and problem-solving", domain: "Engineering" },
+        { text: "Empathy and care for others", domain: "Medicine" },
+        { text: "Creativity and imagination", domain: "Art, Design & Creativity" },
+        { text: "Leadership and communication", domain: "Business & Management" },
+      ],
+    },
+    {
+      id: 9,
+      type: "mcq",
+      question: "Which activity would you enjoy the most?",
+      options: [
+        { text: "Designing a mobile app", domain: "Computer Science & IT" },
+        { text: "Treating a patient", domain: "Medicine" },
+        { text: "Launching a business", domain: "Business & Management" },
+        { text: "Writing a book", domain: "Art, Design & Creativity" },
+      ],
+    },
+    {
+      id: 10,
+      type: "mcq",
+      question: "What inspires you most?",
+      options: [
+        { text: "Technological advancements", domain: "Engineering" },
+        { text: "Healthcare innovations", domain: "Medicine" },
+        { text: "Artistic masterpieces", domain: "Art, Design & Creativity" },
+        { text: "Scientific discoveries", domain: "Science & Research" },
+      ],
+    },
+  ]),
 
-  {
-    id: 17,
-    domain: 'Fashion & Luxury Industry',
-    question: 'Which city is known as the fashion capital of the world?',
-    options: ['New York', 'Paris', 'London', 'Tokyo'],
-    answer: 'Paris',
-  },
-  {
-    id: 18,
-    domain: 'Fashion & Luxury Industry',
-    question: 'What does haute couture mean?',
-    options: ['Fast fashion', 'Ready to wear', 'High-end custom fashion', 'Vintage style'],
-    answer: 'High-end custom fashion',
-  },
+  imageMcq: shuffleArray([
+    {
+      id: 11,
+      type: "imageMcq",
+      question: "Which picture appeals to you most?",
+      options: [
+        { imageUrl: "public/images/image1.jpg", domain: "Computer Science & IT" },
+        { imageUrl: "", domain: "Medicine" },
+        { imageUrl: "", domain: "Business & Management" },
+        { imageUrl: "https://source.unsplash.com/featured/?artist", domain: "Art, Design & Creativity" },
+      ],
+    },
+    {
+      id: 12,
+      type: "imageMcq",
+      question: "Which of these environments excites you most?",
+      options: [
+        { imageUrl: "https://source.unsplash.com/featured/?laboratory", domain: "Science & Research" },
+        { imageUrl: "https://source.unsplash.com/featured/?hospital", domain: "Medicine" },
+        { imageUrl: "https://source.unsplash.com/featured/?startup", domain: "Business & Management" },
+        { imageUrl: "https://source.unsplash.com/featured/?studio", domain: "Art, Design & Creativity" },
+      ],
+    },
+    {
+      id: 13,
+      type: "imageMcq",
+      question: "Which project would you love to work on?",
+      options: [
+        { imageUrl: "https://source.unsplash.com/featured/?robotics", domain: "Engineering" },
+        { imageUrl: "https://source.unsplash.com/featured/?surgery", domain: "Medicine" },
+        { imageUrl: "https://source.unsplash.com/featured/?design", domain: "Art, Design & Creativity" },
+        { imageUrl: "https://source.unsplash.com/featured/?data", domain: "Science & Research" },
+      ],
+    },
+    {
+      id: 14,
+      type: "imageMcq",
+      question: "Which workspace feels best for you?",
+      options: [
+        { imageUrl: "https://source.unsplash.com/featured/?office", domain: "Business & Management" },
+        { imageUrl: "https://source.unsplash.com/featured/?lab", domain: "Science & Research" },
+        { imageUrl: "https://source.unsplash.com/featured/?coding", domain: "Computer Science & IT" },
+        { imageUrl: "https://source.unsplash.com/featured/?artstudio", domain: "Art, Design & Creativity" },
+      ],
+    },
+    {
+      id: 15,
+      type: "imageMcq",
+      question: "Pick the picture that excites you the most:",
+      options: [
+        { imageUrl: "https://source.unsplash.com/featured/?bridge", domain: "Engineering" },
+        { imageUrl: "https://source.unsplash.com/featured/?research", domain: "Science & Research" },
+        { imageUrl: "https://source.unsplash.com/featured/?hospital", domain: "Medicine" },
+        { imageUrl: "https://source.unsplash.com/featured/?gallery", domain: "Art, Design & Creativity" },
+      ],
+    },
+    {
+      id: 16,
+      type: "imageMcq",
+      question: "Which innovation attracts you most?",
+      options: [
+        { imageUrl: "https://source.unsplash.com/featured/?ai", domain: "Computer Science & IT" },
+        { imageUrl: "https://source.unsplash.com/featured/?pharmacy", domain: "Medicine" },
+        { imageUrl: "https://source.unsplash.com/featured/?finance", domain: "Business & Management" },
+        { imageUrl: "https://source.unsplash.com/featured/?painting", domain: "Art, Design & Creativity" },
+      ],
+    },
+    {
+      id: 17,
+      type: "imageMcq",
+      question: "Which lifestyle inspires you most?",
+      options: [
+        { imageUrl: "https://source.unsplash.com/featured/?engineer", domain: "Engineering" },
+        { imageUrl: "https://source.unsplash.com/featured/?scientist", domain: "Science & Research" },
+        { imageUrl: "https://source.unsplash.com/featured/?doctor", domain: "Medicine" },
+        { imageUrl: "https://source.unsplash.com/featured/?artist", domain: "Art, Design & Creativity" },
+      ],
+    },
+    {
+      id: 18,
+      type: "imageMcq",
+      question: "What kind of success looks best to you?",
+      options: [
+        { imageUrl: "https://source.unsplash.com/featured/?award", domain: "Art, Design & Creativity" },
+        { imageUrl: "https://source.unsplash.com/featured/?innovation", domain: "Engineering" },
+        { imageUrl: "https://source.unsplash.com/featured/?healing", domain: "Medicine" },
+        { imageUrl: "https://source.unsplash.com/featured/?startup", domain: "Business & Management" },
+      ],
+    },
+    {
+      id: 19,
+      type: "imageMcq",
+      question: "Choose the field you connect with most:",
+      options: [
+        { imageUrl: "https://source.unsplash.com/featured/?technology", domain: "Computer Science & IT" },
+        { imageUrl: "https://source.unsplash.com/featured/?biology", domain: "Medicine" },
+        { imageUrl: "https://source.unsplash.com/featured/?economy", domain: "Business & Management" },
+        { imageUrl: "https://source.unsplash.com/featured/?creativity", domain: "Art, Design & Creativity" },
+      ],
+    },
+    {
+      id: 20,
+      type: "imageMcq",
+      question: "Which achievement excites you most?",
+      options: [
+        { imageUrl: "https://source.unsplash.com/featured/?software", domain: "Computer Science & IT" },
+        { imageUrl: "https://source.unsplash.com/featured/?cure", domain: "Medicine" },
+        { imageUrl: "https://source.unsplash.com/featured/?startupsuccess", domain: "Business & Management" },
+        { imageUrl: "https://source.unsplash.com/featured/?artwork", domain: "Art, Design & Creativity" },
+      ],
+    },
+  ]),
 
-  {
-    id: 19,
-    domain: 'Culinary Arts & Food Innovation',
-    question: 'What is sous-vide cooking?',
-    options: ['Grilling over flame', 'Deep frying', 'Cooking food in vacuum-sealed bags in water bath', 'Baking at high temp'],
-    answer: 'Cooking food in vacuum-sealed bags in water bath',
-  },
-  {
-    id: 20,
-    domain: 'Culinary Arts & Food Innovation',
-    question: 'Which cuisine is known for sushi?',
-    options: ['Chinese', 'Thai', 'Japanese', 'Korean'],
-    answer: 'Japanese',
-  },
+  mixed: shuffleArray([
+    {
+      id: 21,
+      type: "mixed",
+      question: "Which would you rather do?",
+      options: [
+        { text: "Code a new app", domain: "Computer Science & IT" },
+        { text: "Perform surgery", domain: "Medicine" },
+        { text: "Launch a startup", domain: "Business & Management" },
+        { text: "Paint a masterpiece", domain: "Art, Design & Creativity" },
+      ],
+    },
+    {
+      id: 22,
+      type: "mixed",
+      question: "What motivates you most?",
+      options: [
+        { text: "Solving complex equations", domain: "Engineering" },
+        { text: "Helping sick people recover", domain: "Medicine" },
+        { text: "Leading a team to success", domain: "Business & Management" },
+        { text: "Expressing yourself through art", domain: "Art, Design & Creativity" },
+      ],
+    },
+    {
+      id: 23,
+      type: "mixed",
+      question: "Pick your dream recognition:",
+      options: [
+        { text: "Patent for innovation", domain: "Engineering" },
+        { text: "Medical award", domain: "Medicine" },
+        { text: "Business excellence award", domain: "Business & Management" },
+        { text: "Art exhibition success", domain: "Art, Design & Creativity" },
+      ],
+    },
+    {
+      id: 24,
+      type: "mixed",
+      question: "What excites you more?",
+      options: [
+        { text: "Writing complex code", domain: "Computer Science & IT" },
+        { text: "Discovering new medicines", domain: "Medicine" },
+        { text: "Managing organizations", domain: "Business & Management" },
+        { text: "Designing creative work", domain: "Art, Design & Creativity" },
+      ],
+    },
+    {
+      id: 25,
+      type: "mixed",
+      question: "What inspires you most?",
+      options: [
+        { text: "Space exploration", domain: "Science & Research" },
+        { text: "Healthcare innovations", domain: "Medicine" },
+        { text: "Entrepreneurial journeys", domain: "Business & Management" },
+        { text: "Artistic creativity", domain: "Art, Design & Creativity" },
+      ],
+    },
+    {
+      id: 26,
+      type: "mixed",
+      question: "What would you enjoy doing?",
+      options: [
+        { text: "Building machines", domain: "Engineering" },
+        { text: "Discovering new treatments", domain: "Medicine" },
+        { text: "Starting a new company", domain: "Business & Management" },
+        { text: "Writing poetry", domain: "Art, Design & Creativity" },
+      ],
+    },
+    {
+      id: 27,
+      type: "mixed",
+      question: "Which project excites you most?",
+      options: [
+        { text: "AI-powered robots", domain: "Computer Science & IT" },
+        { text: "Developing vaccines", domain: "Medicine" },
+        { text: "Launching e-commerce", domain: "Business & Management" },
+        { text: "Making films", domain: "Art, Design & Creativity" },
+      ],
+    },
+    {
+      id: 28,
+      type: "mixed",
+      question: "What skill defines you best?",
+      options: [
+        { text: "Logical thinking", domain: "Engineering" },
+        { text: "Compassion", domain: "Medicine" },
+        { text: "Leadership", domain: "Business & Management" },
+        { text: "Creativity", domain: "Art, Design & Creativity" },
+      ],
+    },
+    {
+      id: 29,
+      type: "mixed",
+      question: "Which success looks best?",
+      options: [
+        { text: "Inventing a device", domain: "Engineering" },
+        { text: "Curing patients", domain: "Medicine" },
+        { text: "Growing a company", domain: "Business & Management" },
+        { text: "Publishing a book", domain: "Art, Design & Creativity" },
+      ],
+    },
+    {
+      id: 30,
+      type: "mixed",
+      question: "What’s your passion?",
+      options: [
+        { text: "Technology", domain: "Computer Science & IT" },
+        { text: "Healthcare", domain: "Medicine" },
+        { text: "Entrepreneurship", domain: "Business & Management" },
+        { text: "Art", domain: "Art, Design & Creativity" },
+      ],
+    },
+    {
+      id: 31,
+      type: "mixed",
+      question: "Pick your future dream:",
+      options: [
+        { text: "Inventing AI", domain: "Computer Science & IT" },
+        { text: "Finding cures", domain: "Medicine" },
+        { text: "Running a company", domain: "Business & Management" },
+        { text: "Creating art", domain: "Art, Design & Creativity" },
+      ],
+    },
+    {
+      id: 32,
+      type: "mixed",
+      question: "What makes you feel proud?",
+      options: [
+        { text: "Designing solutions", domain: "Engineering" },
+        { text: "Saving lives", domain: "Medicine" },
+        { text: "Leading teams", domain: "Business & Management" },
+        { text: "Artistic achievements", domain: "Art, Design & Creativity" },
+      ],
+    },
+    {
+      id: 33,
+      type: "mixed",
+      question: "What’s your dream workplace?",
+      options: [
+        { text: "Tech company", domain: "Computer Science & IT" },
+        { text: "Hospital", domain: "Medicine" },
+        { text: "Corporate office", domain: "Business & Management" },
+        { text: "Art studio", domain: "Art, Design & Creativity" },
+      ],
+    },
+    {
+      id: 34,
+      type: "mixed",
+      question: "What challenges you most?",
+      options: [
+        { text: "Building structures", domain: "Engineering" },
+        { text: "Diagnosing diseases", domain: "Medicine" },
+        { text: "Managing businesses", domain: "Business & Management" },
+        { text: "Expressing art", domain: "Art, Design & Creativity" },
+      ],
+    },
+    {
+      id: 35,
+      type: "mixed",
+      question: "What inspires your work?",
+      options: [
+        { text: "Innovation", domain: "Engineering" },
+        { text: "Compassion", domain: "Medicine" },
+        { text: "Leadership", domain: "Business & Management" },
+        { text: "Creativity", domain: "Art, Design & Creativity" },
+      ],
+    },
+    {
+      id: 36,
+      type: "mixed",
+      question: "Which global impact appeals to you?",
+      options: [
+        { text: "Building infrastructure", domain: "Engineering" },
+        { text: "Improving healthcare", domain: "Medicine" },
+        { text: "Growing economy", domain: "Business & Management" },
+        { text: "Promoting culture", domain: "Art, Design & Creativity" },
+      ],
+    },
+    {
+      id: 37,
+      type: "mixed",
+      question: "Which success inspires you?",
+      options: [
+        { text: "Tech innovations", domain: "Computer Science & IT" },
+        { text: "Medical breakthroughs", domain: "Medicine" },
+        { text: "Business empires", domain: "Business & Management" },
+        { text: "Art masterpieces", domain: "Art, Design & Creativity" },
+      ],
+    },
+    {
+      id: 38,
+      type: "mixed",
+      question: "What kind of work excites you?",
+      options: [
+        { text: "Engineering solutions", domain: "Engineering" },
+        { text: "Healthcare services", domain: "Medicine" },
+        { text: "Business growth", domain: "Business & Management" },
+        { text: "Art creation", domain: "Art, Design & Creativity" },
+      ],
+    },
+  ]),
+};
 
-  {
-    id: 21,
-    domain: 'Travel & Tourism Careers',
-    question: 'Which job involves planning travel for clients?',
-    options: ['Pilot', 'Travel Agent', 'Chef', 'Hotel Manager'],
-    answer: 'Travel Agent',
-  },
-  {
-    id: 22,
-    domain: 'Travel & Tourism Careers',
-    question: 'Which of these is a UNESCO World Heritage site?',
-    options: ['Eiffel Tower', 'Statue of Liberty', 'Great Wall of China', 'Hollywood Sign'],
-    answer: 'Great Wall of China',
-  },
+/* -----------------------------
+   Score calculation
+   ----------------------------- */
+// In ../data/questions.js
 
-  {
-    id: 23,
-    domain: 'Digital Marketing & Branding',
-    question: 'Which is a key SEO factor?',
-    options: ['Image size', 'Backlinks', 'Color scheme', 'Fonts used'],
-    answer: 'Backlinks',
-  },
-  {
-    id: 24,
-    domain: 'Digital Marketing & Branding',
-    question: 'What does PPC stand for?',
-    options: ['Pay Per Click', 'Private Product Campaign', 'Post-Promotion Content', 'Paid Promotion Cost'],
-    answer: 'Pay Per Click',
-  },
+export function calculateScores(userAnswers = []) {
+  const counts = {};
+  userAnswers.forEach(ans => {
+    if (!ans || !ans.domain) return;
+    counts[ans.domain] = (counts[ans.domain] || 0) + 1;
+  });
 
-  {
-    id: 25,
-    domain: 'Psychology & Coaching',
-    question: 'What is cognitive behavioral therapy (CBT) mainly used for?',
-    options: ['Dieting', 'Mental health treatment', 'Sports training', 'Public speaking'],
-    answer: 'Mental health treatment',
-  },
-  {
-    id: 26,
-    domain: 'Psychology & Coaching',
-    question: 'Which skill is crucial for a life coach?',
-    options: ['Coding', 'Empathy', 'Drawing', 'Driving'],
-    answer: 'Empathy',
-  },
+  // Sort domains by score descending, take top three
+  const topThree = Object.entries(counts)
+    .sort(([, a], [, b]) => b - a)
+    .slice(0, 3)
+    .map(([domain]) => domain);
 
-  {
-    id: 27,
-    domain: 'Finance & Investments',
-    question: 'What is the stock market?',
-    options: ['A place to buy goods', 'A banking system', 'A marketplace for buying and selling stocks', 'An insurance agency'],
-    answer: 'A marketplace for buying and selling stocks',
-  },
-  {
-    id: 28,
-    domain: 'Finance & Investments',
-    question: 'What does ROI stand for?',
-    options: ['Rate of Inflation', 'Return on Investment', 'Record of Income', 'Revenue Over Investment'],
-    answer: 'Return on Investment',
-  },
-
-  {
-    id: 29,
-    domain: 'Art, Design & Creativity',
-    question: 'What is a common medium in digital art?',
-    options: ['Chalk', 'Oil', 'Tablet and stylus', 'Clay'],
-    answer: 'Tablet and stylus',
-  },
-  {
-    id: 30,
-    domain: 'Art, Design & Creativity',
-    question: 'Which principle helps guide visual hierarchy?',
-    options: ['Symmetry', 'Color theory', 'Contrast', 'Texture'],
-    answer: 'Contrast',
-  },
-
-  {
-    id: 31,
-    domain: 'Entrepreneurship & Startups',
-    question: 'What is a startup pitch?',
-    options: ['Business report', 'Investor presentation', 'Code snippet', 'Resume'],
-    answer: 'Investor presentation',
-  },
-  {
-    id: 32,
-    domain: 'Entrepreneurship & Startups',
-    question: 'What is an MVP in startups?',
-    options: ['Most Valuable Plan', 'Minimum Viable Product', 'Marketing Value Proposition', 'Major Venture Plan'],
-    answer: 'Minimum Viable Product',
-  },
+  return topThree;
+}
 
 
+/* -----------------------------
+   Build AI Prompt
+   ----------------------------- */
+export function buildCareerPrompt(scores) {
+  return `You are a friendly career guidance assistant.
 
-{
-  id: 33,
-  domain: 'NDA',
-  question: 'Which of the following is the longest bone in the human body?',
-  options: ['Femur', 'Tibia', 'Humerus', 'Radius'],
-  answer: 'Femur',
-},
-{
-  id: 34,
-  domain: 'NDA',
-  question: 'Which planet is known as the Red Planet?',
-  options: ['Earth', 'Venus', 'Mars', 'Jupiter'],
-  answer: 'Mars',
-},
-{
-  id: 35,
-  domain: 'NDA',
-  question: 'What is the SI unit of force?',
-  options: ['Joule', 'Pascal', 'Newton', 'Watt'],
-  answer: 'Newton',
-},
+A user completed a career-interest quiz. Here are their domain scores:
+${JSON.stringify(scores, null, 2)}
 
-// Army
-{
-  id: 36,
-  domain: 'Army',
-  question: 'Who is the Supreme Commander of the Indian Armed Forces?',
-  options: ['Chief of Army Staff', 'Prime Minister', 'President of India', 'Defense Minister'],
-  answer: 'President of India',
-},
-{
-  id: 37,
-  domain: 'Army',
-  question: 'The regimental motto of the Indian Army is:',
-  options: ['Service Before Self', 'Bharat Mata ki Jai', 'Jai Jawan Jai Kisan', 'Duty, Honour, Courage'],
-  answer: 'Service Before Self',
-},
-{
-  id: 38,
-  domain: 'Army',
-  question: 'Which medal is awarded for gallantry during peacetime?',
-  options: ['Param Vir Chakra', 'Ashoka Chakra', 'Vir Chakra', 'Shaurya Chakra'],
-  answer: 'Ashoka Chakra',
-},
+1) Identify the top 2 recommended career domains for this user (ranked).
+2) For each domain, give a short motivational explanation (2-3 sentences) why it fits.
+3) For each domain, list 3 specific career paths or job roles they can explore.
+4) For each domain, suggest 3 concrete next steps (courses, skills, or first projects) the user can take in the next 3 months.
 
-// UPSC
-{
-  id: 39,
-  domain: 'UPSC',
-  question: 'Who was the first President of India?',
-  options: ['Dr. B.R. Ambedkar', 'Jawaharlal Nehru', 'Dr. Rajendra Prasad', 'Sardar Patel'],
-  answer: 'Dr. Rajendra Prasad',
-},
-{
-  id: 40,
-  domain: 'UPSC',
-  question: 'Which Article of the Constitution deals with Fundamental Rights?',
-  options: ['Article 370', 'Article 14-32', 'Article 51A', 'Article 21A'],
-  answer: 'Article 14-32',
-},
-{
-  id: 41,
-  domain: 'UPSC',
-  question: 'The "Directive Principles of State Policy" are inspired from which country?',
-  options: ['USA', 'Ireland', 'UK', 'Canada'],
-  answer: 'Ireland',
-},
+Keep the tone encouraging, practical, and concise.`;
+}
 
+/* -----------------------------
+   Gemini AI Integration
+   ----------------------------- */
+const genAI = new GoogleGenerativeAI(
+  import.meta.env.VITE_REACT_APP_GEMINI_API_KEY
+);
 
-];
+export async function getCareerGuidance(scores) {
+  if (!import.meta.env.VITE_REACT_APP_GEMINI_API_KEY) {
+    throw new Error("VITE_GEMINI_API_KEY not set in environment.");
+  }
 
-export default questions;
+  const prompt = buildCareerPrompt(scores);
+  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+  const result = await model.generateContent(prompt);
+  return result.response.text();
+}
+
+/* -----------------------------
+   Export quiz
+   ----------------------------- */
+export default quiz;
