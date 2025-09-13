@@ -94,7 +94,6 @@ const quiz = {
         { text: "Corporate offices or startups", domain: "Business & Management" },
       ],
     },
-
     {
       id: 8,
       type: "mcq",
@@ -136,111 +135,112 @@ const quiz = {
       type: "imageMcq",
       question: "Which picture appeals to you most?",
       options: [
-        { imageUrl: "public/images/image1.jpg", domain: "Computer Science & IT" },
-        { imageUrl: "", domain: "Medicine" },
-        { imageUrl: "", domain: "Business & Management" },
-        { imageUrl: "https://source.unsplash.com/featured/?artist", domain: "Art, Design & Creativity" },
-      ],
+        { imageUrl: "/images/imageMCQ/id11/option1.jpg", domain: "Computer Science & IT" },
+        { imageUrl: "/images/imageMCQ/id11/option2.jpg", domain: "Medicine" },
+        { imageUrl: "/images/imageMCQ/id11/option3.jpg", domain: "Business & Management" },
+        { imageUrl: "/images/imageMCQ/id11/option4.jpg", domain: "Art, Design & Creativity" }
+      ]
     },
     {
       id: 12,
       type: "imageMcq",
       question: "Which of these environments excites you most?",
       options: [
-        { imageUrl: "https://source.unsplash.com/featured/?laboratory", domain: "Science & Research" },
-        { imageUrl: "https://source.unsplash.com/featured/?hospital", domain: "Medicine" },
-        { imageUrl: "https://source.unsplash.com/featured/?startup", domain: "Business & Management" },
-        { imageUrl: "https://source.unsplash.com/featured/?studio", domain: "Art, Design & Creativity" },
-      ],
+        { imageUrl: "/images/imageMCQ/id12/option1.jpg", domain: "Science & Research" },
+        { imageUrl: "/images/imageMCQ/id12/option2.jpg", domain: "Medicine" },
+        { imageUrl: "/images/imageMCQ/id12/option3.jpg", domain: "Business & Management" },
+        { imageUrl: "/images/imageMCQ/id12/option4.jpg", domain: "Art, Design & Creativity" }
+      ]
     },
     {
       id: 13,
       type: "imageMcq",
       question: "Which project would you love to work on?",
       options: [
-        { imageUrl: "https://source.unsplash.com/featured/?robotics", domain: "Engineering" },
-        { imageUrl: "https://source.unsplash.com/featured/?surgery", domain: "Medicine" },
-        { imageUrl: "https://source.unsplash.com/featured/?design", domain: "Art, Design & Creativity" },
-        { imageUrl: "https://source.unsplash.com/featured/?data", domain: "Science & Research" },
-      ],
+        { imageUrl: "/images/imageMCQ/id13/option1.jpg", domain: "Engineering" },
+        { imageUrl: "/images/imageMCQ/id13/option2.jpg", domain: "Medicine" },
+        { imageUrl: "/images/imageMCQ/id13/option3.jpg", domain: "Art, Design & Creativity" },
+        { imageUrl: "/images/imageMCQ/id13/option4.jpg", domain: "Science & Research" }
+      ]
     },
     {
       id: 14,
       type: "imageMcq",
       question: "Which workspace feels best for you?",
       options: [
-        { imageUrl: "https://source.unsplash.com/featured/?office", domain: "Business & Management" },
-        { imageUrl: "https://source.unsplash.com/featured/?lab", domain: "Science & Research" },
-        { imageUrl: "https://source.unsplash.com/featured/?coding", domain: "Computer Science & IT" },
-        { imageUrl: "https://source.unsplash.com/featured/?artstudio", domain: "Art, Design & Creativity" },
-      ],
+        { imageUrl: "/images/imageMCQ/id14/option1.jpg", domain: "Business & Management" },
+        { imageUrl: "/images/imageMCQ/id14/option2.jpg", domain: "Science & Research" },
+        { imageUrl: "/images/imageMCQ/id14/option3.jpg", domain: "Computer Science & IT" },
+        { imageUrl: "/images/imageMCQ/id14/option4.jpg", domain: "Art, Design & Creativity" }
+      ]
     },
     {
       id: 15,
       type: "imageMcq",
       question: "Pick the picture that excites you the most:",
       options: [
-        { imageUrl: "https://source.unsplash.com/featured/?bridge", domain: "Engineering" },
-        { imageUrl: "https://source.unsplash.com/featured/?research", domain: "Science & Research" },
-        { imageUrl: "https://source.unsplash.com/featured/?hospital", domain: "Medicine" },
-        { imageUrl: "https://source.unsplash.com/featured/?gallery", domain: "Art, Design & Creativity" },
-      ],
+        { imageUrl: "/images/imageMCQ/id15/option1.jpg", domain: "Engineering" },
+        { imageUrl: "/images/imageMCQ/id15/option2.jpg", domain: "Science & Research" },
+        { imageUrl: "/images/imageMCQ/id15/option3.jpg", domain: "Medicine" },
+        { imageUrl: "/images/imageMCQ/id15/option4.jpg", domain: "Art, Design & Creativity" }
+      ]
     },
     {
       id: 16,
       type: "imageMcq",
       question: "Which innovation attracts you most?",
       options: [
-        { imageUrl: "https://source.unsplash.com/featured/?ai", domain: "Computer Science & IT" },
-        { imageUrl: "https://source.unsplash.com/featured/?pharmacy", domain: "Medicine" },
-        { imageUrl: "https://source.unsplash.com/featured/?finance", domain: "Business & Management" },
-        { imageUrl: "https://source.unsplash.com/featured/?painting", domain: "Art, Design & Creativity" },
-      ],
+        { imageUrl: "/images/imageMCQ/id16/option1.jpg", domain: "Computer Science & IT" },
+        { imageUrl: "/images/imageMCQ/id16/option2.jpg", domain: "Medicine" },
+        { imageUrl: "/images/imageMCQ/id16/option3.jpg", domain: "Business & Management" },
+        { imageUrl: "/images/imageMCQ/id16/option4.jpg", domain: "Art, Design & Creativity" }
+      ]
     },
     {
       id: 17,
       type: "imageMcq",
       question: "Which lifestyle inspires you most?",
       options: [
-        { imageUrl: "https://source.unsplash.com/featured/?engineer", domain: "Engineering" },
-        { imageUrl: "https://source.unsplash.com/featured/?scientist", domain: "Science & Research" },
-        { imageUrl: "https://source.unsplash.com/featured/?doctor", domain: "Medicine" },
-        { imageUrl: "https://source.unsplash.com/featured/?artist", domain: "Art, Design & Creativity" },
-      ],
+        { imageUrl: "/images/imageMCQ/id17/option1.jpg", domain: "Engineering" },
+        { imageUrl: "/images/imageMCQ/id17/option2.jpg", domain: "Science & Research" },
+        { imageUrl: "/images/imageMCQ/id17/option3.jpg", domain: "Medicine" },
+        { imageUrl: "/images/imageMCQ/id17/option4.jpg", domain: "Art, Design & Creativity" }
+      ]
     },
     {
       id: 18,
       type: "imageMcq",
       question: "What kind of success looks best to you?",
       options: [
-        { imageUrl: "https://source.unsplash.com/featured/?award", domain: "Art, Design & Creativity" },
-        { imageUrl: "https://source.unsplash.com/featured/?innovation", domain: "Engineering" },
-        { imageUrl: "https://source.unsplash.com/featured/?healing", domain: "Medicine" },
-        { imageUrl: "https://source.unsplash.com/featured/?startup", domain: "Business & Management" },
-      ],
+        { imageUrl: "/images/imageMCQ/id18/option1.jpg", domain: "Art, Design & Creativity" },
+        { imageUrl: "/images/imageMCQ/id18/option2.jpg", domain: "Engineering" },
+        { imageUrl: "/images/imageMCQ/id18/option3.jpg", domain: "Medicine" },
+        { imageUrl: "/images/imageMCQ/id18/option4.jpg", domain: "Business & Management" }
+      ]
     },
     {
       id: 19,
       type: "imageMcq",
       question: "Choose the field you connect with most:",
       options: [
-        { imageUrl: "https://source.unsplash.com/featured/?technology", domain: "Computer Science & IT" },
-        { imageUrl: "https://source.unsplash.com/featured/?biology", domain: "Medicine" },
-        { imageUrl: "https://source.unsplash.com/featured/?economy", domain: "Business & Management" },
-        { imageUrl: "https://source.unsplash.com/featured/?creativity", domain: "Art, Design & Creativity" },
-      ],
+        { imageUrl: "/images/imageMCQ/id19/option1.jpg", domain: "Computer Science & IT" },
+        { imageUrl: "/images/imageMCQ/id19/option2.jpg", domain: "Medicine" },
+        { imageUrl: "/images/imageMCQ/id19/option3.jpg", domain: "Business & Management" },
+        { imageUrl: "/images/imageMCQ/id19/option4.jpg", domain: "Art, Design & Creativity" }
+      ]
     },
     {
       id: 20,
       type: "imageMcq",
       question: "Which achievement excites you most?",
       options: [
-        { imageUrl: "https://source.unsplash.com/featured/?software", domain: "Computer Science & IT" },
-        { imageUrl: "https://source.unsplash.com/featured/?cure", domain: "Medicine" },
-        { imageUrl: "https://source.unsplash.com/featured/?startupsuccess", domain: "Business & Management" },
-        { imageUrl: "https://source.unsplash.com/featured/?artwork", domain: "Art, Design & Creativity" },
-      ],
-    },
+        { imageUrl: "/images/imageMCQ/id20/option1.jpg", domain: "Computer Science & IT" },
+        { imageUrl: "/images/imageMCQ/id20/option2.jpg", domain: "Medicine" },
+        { imageUrl: "/images/imageMCQ/id20/option3.jpg", domain: "Business & Management" },
+        { imageUrl: "/images/imageMCQ/id20/option4.jpg", domain: "Art, Design & Creativity" }
+      ]
+    }
+
   ]),
 
   mixed: shuffleArray([
@@ -448,24 +448,14 @@ const quiz = {
 /* -----------------------------
    Score calculation
    ----------------------------- */
-// In ../data/questions.js
-
 export function calculateScores(userAnswers = []) {
-  const counts = {};
-  userAnswers.forEach(ans => {
+  const scores = {};
+  userAnswers.forEach((ans) => {
     if (!ans || !ans.domain) return;
-    counts[ans.domain] = (counts[ans.domain] || 0) + 1;
+    scores[ans.domain] = (scores[ans.domain] || 0) + 1;
   });
-
-  // Sort domains by score descending, take top three
-  const topThree = Object.entries(counts)
-    .sort(([, a], [, b]) => b - a)
-    .slice(0, 3)
-    .map(([domain]) => domain);
-
-  return topThree;
+  return scores;
 }
-
 
 /* -----------------------------
    Build AI Prompt
